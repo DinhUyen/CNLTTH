@@ -1,0 +1,83 @@
+.dropdown{
+    position: relative;
+
+}
+.list{
+    position: absolute;
+    z-index: 10000;
+    background-color: #ffffff;
+    padding-inline-start: 0;
+    border-radius: 8px;
+
+}
+.item{
+    list-style-type: none;
+    padding: 12px 6px;
+    min-width:160px;
+    cursor: pointer;
+    line-height: 2;
+    position: relative;
+}
+.item:hover{
+    background-color: rgb(233, 236, 236);
+}
+.item-1:hover{
+    background-color: rgb(233, 236, 236);
+}
+.item-2:hover{
+    background-color: rgb(233, 236, 236);
+}
+p{
+    margin-bottom: 0;
+}
+.item:hover .list-1{
+   display: block;
+}
+.list-1{
+    position: absolute;
+    left: 160px;
+    display: none;
+    background-color: #ffffff;
+    z-index: 100000;
+    top: 0px;
+    padding-inline-start: 0;
+}
+.item-1{
+    list-style-type: none;
+    padding: 12px 6px;
+    min-width:160px;
+    cursor: pointer;
+    line-height: 2;
+    position: relative;
+}
+.list-2{
+    position: absolute;
+    left: 160px;
+    display: none;
+    background-color: #ffffff;
+    z-index: 100000;
+    top: 0px;
+    padding-inline-start: 0;
+}
+.item-2{
+    list-style-type: none;
+    padding: 12px 6px;
+    min-width:260px;
+    cursor: pointer;
+    line-height: 2;
+    position: relative;
+}
+.item-1:hover .list-2{
+    display: block;
+ }
+ .item-2:hover{
+    background-color: rgb(233, 236, 236);
+}
+
+ .icon-down{
+    display: flex;
+    gap: 12px;
+ }
+ .email{
+    width: 300px;
+ }

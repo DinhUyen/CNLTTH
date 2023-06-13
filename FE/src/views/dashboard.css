@@ -1,0 +1,40 @@
+/* Tùy chỉnh hình ảnh */
+.card-header img {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  /* Tùy chỉnh tiêu đề */
+  .card-header h4 {
+    font-size: 24px;
+    color: #333;
+    margin-top: 10px;
+  }
+  
+  /* Tùy chỉnh đoạn văn */
+  .card-body p {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 10px;
+  }
+  
+  /* Thêm biểu tượng */
+  .card-body .badge {
+    margin-right: 5px;
+  }
+  
+  /* Thêm nút */
+  .card-body .btn {
+    margin-right: 10px;
+  }
+  
+  /* Tùy chỉnh tooltip */
+  .tooltip-inner {
+    font-size: 14px;
+    background-color: #333;
+  }
+  .bold-text {
+    font-weight: bold;
+    font-size: 45px;
+  }

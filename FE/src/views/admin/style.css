@@ -1,0 +1,13 @@
+.modal.show .modal-dialog {
+    transform: none!important;
+}
+.pagination .page-item.active .visually-hidden, .pagination .prev .visually-hidden, .pagination .next .visually-hidden{
+    display: none !important;
+}
+.pagination .page-item.active .page-link{
+    background-color: rgb(29, 199, 234);
+    border-color: rgb(29, 199, 234);
+}
+.pagination .page-link{
+    color: rgb(29, 199, 234);
+}
