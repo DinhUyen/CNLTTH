@@ -23,6 +23,7 @@ import {
   Row,
   Col,
   Form,
+  Pagination
 } from "react-bootstrap";
 
 function TableListAdmin() {
@@ -35,6 +36,8 @@ function TableListAdmin() {
     const [listDSCT, setlistDSCT] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [show, setShow] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [showModalAdd, setshowModalAdd] = useState(false);
     const handleCloseAdd = () => setshowModalAdd(false);
     const handleShowAdd = () => setshowModalAdd(true);
@@ -156,7 +159,11 @@ function TableListAdmin() {
     
   };
 
-
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
+  };
 
   return (
     <>
@@ -327,8 +334,7 @@ function TableListAdmin() {
                     </tr>
                   </thead>
                   <tbody>
-                  {listDSCT &&
-                      listDSCT.map((item) => {
+                  {paginate(listDSCT).map((item) => {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
@@ -362,6 +368,48 @@ function TableListAdmin() {
                       })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                <Pagination>
+                  {currentPage > 1 && (
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} className="prev"/>
+                  )}
+                  {currentPage > 2 && (
+                    <Pagination.Ellipsis
+                      onClick={() => setCurrentPage(Math.floor(currentPage / 2))}
+                    />
+                  )}
+                  {[...Array(Math.ceil(listDSCT.length / pageSize)).keys()].map(
+                    (number) =>
+                      Math.abs(currentPage - (number + 1)) <= 2 && (
+                        <Pagination.Item
+                          key={number}
+                          active={currentPage === number + 1}
+                          onClick={() => setCurrentPage(number + 1)}
+                        >
+                          {number + 1}
+                        </Pagination.Item>
+                      )
+                  )}
+                  {currentPage <
+                    Math.ceil(listDSCT.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listDSCT.length / pageSize)) /
+                              2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  {currentPage <
+                    Math.ceil(listDSCT.length / pageSize) && (
+                      <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} className="next"/>
+                    )}
+                </Pagination>
+              </div>
               </Card.Body>
             </Card>
           </Col>

@@ -10,6 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import moment from "moment";
+import './style.css'
 // react-bootstrap components
 import {
   Badge,
@@ -22,6 +23,7 @@ import {
   Row,
   Col,
   Form,
+  Pagination
 } from "react-bootstrap";
 
 function TableListAdmin() {
@@ -31,6 +33,8 @@ function TableListAdmin() {
   const [tt, setTt] = useState();
   const [xetDuyet, setXetDuyet] = useState();
   const [listDSCXD, setlistDSCXD] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const ref = useRef(null)
   const handleChange = (date) => {
@@ -64,7 +68,11 @@ function TableListAdmin() {
   useEffect(() => {
     getItem();
   }, [id, selectedDate]);
-
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
+  };
  async function duyetDSDK(tag){
   const data= {
     STT_dang_ky: STT,
@@ -73,9 +81,10 @@ function TableListAdmin() {
   console.log(data)
   const res = await axiosClient.post("/Person/post-xet-duyet-ra-ngoai/", data)
   if (res.status === 200) {
-    tag.innerHTML = "Đã duyệt"
-    // alert("Thành công");
-    getItem()
+    // tag.innerHTML = "Đã duyệt"
+    alert("Thành công");
+    getItem()  }
+  else {
     alert("Đã xảy ra lỗi")
   }
  }
@@ -87,8 +96,8 @@ function TableListAdmin() {
   console.log(data)
   const res = await axiosClient.post("/Person/post-xet-duyet-ra-ngoai/", data)
   if (res.status === 200) {
-    tag.innerHTML = "Không được duyệt"
-    // alert("Thành công");
+    // tag.innerHTML = "Không được duyệt"
+    alert("Thành công");
     getItem()
   } else {
     alert("Đã xảy ra lỗi")
@@ -200,8 +209,7 @@ function getThoiGian(ThoiGian){
                     </tr>
                   </thead>
                   <tbody>
-                    {listDSCXD &&
-                      listDSCXD.map((item) => {
+                  {paginate(listDSCXD).map((item) => {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
@@ -231,7 +239,7 @@ function getThoiGian(ThoiGian){
                               <p onClick={(e) => handleDuyet(e,item.STT)} className="nc-icon nc-check-2 text-primary f-15 m-r-5"
                                title="Duyệt"
                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
-                               <p onClick={(e) => handleDuyet(e,item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                               <p onClick={(e) => handleKhongDuyet(e,item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
                                title="Không duyệt"
                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
                               </div>
@@ -241,6 +249,48 @@ function getThoiGian(ThoiGian){
                       })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                <Pagination>
+                  {currentPage > 1 && (
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} className="prev"/>
+                  )}
+                  {currentPage > 2 && (
+                    <Pagination.Ellipsis
+                      onClick={() => setCurrentPage(Math.floor(currentPage / 2))}
+                    />
+                  )}
+                  {[...Array(Math.ceil(listDSCXD.length / pageSize)).keys()].map(
+                    (number) =>
+                      Math.abs(currentPage - (number + 1)) <= 2 && (
+                        <Pagination.Item
+                          key={number}
+                          active={currentPage === number + 1}
+                          onClick={() => setCurrentPage(number + 1)}
+                        >
+                          {number + 1}
+                        </Pagination.Item>
+                      )
+                  )}
+                  {currentPage <
+                    Math.ceil(listDSCXD.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listDSCXD.length / pageSize)) /
+                              2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  {currentPage <
+                    Math.ceil(listDSCXD.length / pageSize) && (
+                      <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} className="next"/>
+                    )}
+                </Pagination>
+              </div>
               </Card.Body>
             </Card>
           </Col>
