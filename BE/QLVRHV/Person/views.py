@@ -561,8 +561,8 @@ class PersonViewSet(viewsets.ViewSet):
             'STT': openapi.Schema(type=openapi.TYPE_INTEGER, default=23),
             'hinh_thuc_RN': openapi.Schema(type=openapi.TYPE_INTEGER, description="0 là tranh thủ,1 là ra ngoài", default=1),
             'dia_diem': openapi.Schema(type=openapi.TYPE_STRING, description="Địa điểm", default="Hà Nội"),
-            'time_start': openapi.Schema(type=openapi.TYPE_STRING, default='2022-11-11 16:30'),
-            'time_end': openapi.Schema(type=openapi.TYPE_STRING, default='2022-11-13 18:00'),
+            'time_start': openapi.Schema(type=openapi.TYPE_STRING, default='2023-06-19 16:30'),
+            'time_end': openapi.Schema(type=openapi.TYPE_STRING, default='2026-06-21 18:00'),
         }
     ), responses=post_list_person_response)
     @action(methods=['PUT'], detail=False, url_path='put-thay_doi-thong-tin-dang-ky')
@@ -1037,11 +1037,11 @@ class VeBinhViewSet(viewsets.ViewSet):
     sw_size = openapi.Parameter(
         name='size', type=openapi.TYPE_STRING, description="Number of results to return per page", in_=openapi.IN_QUERY)
     sw_TimeStartGo = openapi.Parameter(
-        name='timeStartGo', type=openapi.TYPE_STRING, description="Thời gian đi", default="2022-11-11 16:30", in_=openapi.IN_QUERY)
+        name='timeStartGo', type=openapi.TYPE_STRING, description="Thời gian đi", default="2023-06-21 16:30", in_=openapi.IN_QUERY)
     sw_TimeStart = openapi.Parameter(
-        name='timeStart', type=openapi.TYPE_STRING, description="Thời gian bắt đầu", default="2022-11-11", in_=openapi.IN_QUERY)
+        name='timeStart', type=openapi.TYPE_STRING, description="Thời gian bắt đầu", default="2023-06-23", in_=openapi.IN_QUERY)
     sw_TimeEnd = openapi.Parameter(
-        name='timeEnd', type=openapi.TYPE_STRING, description="Thời gian kết thúc", default="2022-11-11", in_=openapi.IN_QUERY)
+        name='timeEnd', type=openapi.TYPE_STRING, description="Thời gian kết thúc", default="2023-06-25", in_=openapi.IN_QUERY)
     sw_DonViID = openapi.Parameter(
         name='donViID', type=openapi.TYPE_STRING, description="Mã đơn vị ( lớp, đại đội, tiểu đoàn)", default="DD155", in_=openapi.IN_QUERY)
     sw_MaHV = openapi.Parameter(

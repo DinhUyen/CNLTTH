@@ -8,7 +8,7 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Swagger docs", # Standard
         default_version='v1.0', # Standard
-        description="Swagger docs for HTTTQL", 
+        description="Swagger docs for CNLTTH", 
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
