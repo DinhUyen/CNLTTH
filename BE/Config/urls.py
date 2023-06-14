@@ -4,12 +4,11 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
 
-# định nghĩa các url được sử dụng trong ứng dụng
 schema_view = get_schema_view(
     openapi.Info(
         title="Swagger docs", # Standard
         default_version='v1.0', # Standard
-        description="Swagger docs for CNLTTH", 
+        description="Swagger docs for HTTTQL", 
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),

@@ -11,10 +11,10 @@ class CustomPermissions(permissions.BasePermission):
     #     return ['GET','POST','PUT','DELETE']
 
     def get_allowed_methods(self, CODE_VIEW):
-        if int(CODE_VIEW) > NO_ROLE: # role admin
-            return ['GET','POST','PUT','DELETE']
-        elif int(CODE_VIEW) == GUARDSMAN_ROLE:
+        if int(CODE_VIEW) == GUARDSMAN_ROLE : # role admin
             return ['GET']
+        elif int(CODE_VIEW) > NO_ROLE:
+            return ['GET','POST','PUT','DELETE']
         else:
             return []
     

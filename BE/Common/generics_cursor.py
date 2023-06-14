@@ -16,7 +16,7 @@ def dictfetchall(cursor):
 def getDictFromQuery(query_String:str,param:list,page:str=None,size:str=None):  
     with connection.cursor() as cursor:
         if page is not None:
-            query_String=query_String+"LIMIT %s OFFSET %s"
+            query_String=query_String+" LIMIT %s OFFSET %s"
             if size is not None:
                 param =param + [int(size),(int(page)-1)*int(size)]
             else:
@@ -30,7 +30,7 @@ def getDictFromQuery(query_String:str,param:list,page:str=None,size:str=None):
 @multimethod
 def getDictFromQuery(cursor:object,query_String:str,param:list,page:str=None,size:str=None):
     if page is not None:
-        query_String=query_String+"LIMIT %s OFFSET %s"
+        query_String=query_String+" LIMIT %s OFFSET %s"
         if size is not None:
             param =param + [int(size),(int(page)-1)*int(size)]
         else:
