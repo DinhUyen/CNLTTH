@@ -547,13 +547,13 @@ class PersonViewSet(viewsets.ViewSet):
         dataDict = request.data
         print(dataDict)
         try:
-            hinhThucRN = int(dataDict.get("hinh_thuc_RN"))
-            if hinhThucRN == 0:
-                hinhThucRN = "Tranh thủ miền Nam"
-            elif hinhThucRN == 1:
-                hinhThucRN = "Tranh thủ miền Bắc"
-            else:
-                hinhThucRN="Ra ngoài"
+            hinhThucRN =dataDict.get("hinh_thuc_RN")
+            # if hinhThucRN == 0:
+            #     hinhThucRN = "Tranh thủ miền Nam"
+            # elif hinhThucRN == 1:
+            #     hinhThucRN = "Tranh thủ miền Bắc"
+            # else:
+            #     hinhThucRN="Ra ngoài"
 
 
             diaDiem = dataDict.get("dia_diem")
@@ -579,6 +579,25 @@ class PersonViewSet(viewsets.ViewSet):
         except:
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data={"status": True}, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(method='get', manual_parameters=[sw_page,sw_size], responses=get_list_person_response)
+    @action(methods=['GET'], detail=False, url_path='get-list-hinh-thuc-ra-ngoai')
+    def get_list_hinh_thuc_RN(self, request):
+        """
+        API này dùng để lấy danh sách các hình thức ra ngoài
+        """
+        page = request.query_params.get('page')
+        size = request.query_params.get('size')
+
+        try:
+            query_string = f"SELECT * FROM HINHTHUCRN"
+            obj = generics_cursor.getDictFromQuery(
+                query_string, [], page=page, size=size)
+            if obj is None:
+                return Response(data={}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(data=obj, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(method='put', manual_parameters=[], request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT, required=None,
@@ -597,11 +616,12 @@ class PersonViewSet(viewsets.ViewSet):
         """
         dataDict = request.data
         try:
-            hinhThucRN = int(dataDict.get("hinh_thuc_RN"))
-            if hinhThucRN == 0:
-                hinhThucRN = "Tranh thủ"
-            else:
-                hinhThucRN = "Ra ngoài"
+            # hinhThucRN = int(dataDict.get("hinh_thuc_RN"))
+            hinhThucRN = dataDict.get("hinh_thuc_RN")
+            # if hinhThucRN == 0:
+            #     hinhThucRN = "Tranh thủ"
+            # else:
+            #     hinhThucRN = "Ra ngoài"
 
             STT = dataDict.get("STT")
             diaDiem = dataDict.get("dia_diem")
@@ -610,7 +630,7 @@ class PersonViewSet(viewsets.ViewSet):
             timeStart = datetime.strptime(timeStart, '%Y-%m-%d %H:%M')
             timeEnd = datetime.strptime(timeEnd, '%Y-%m-%d %H:%M')         
 
-            query_string = f'UPDATE DSDANGKY SET HinhThucRN = %s, DiaDiem = %s, ThoiGianDi = %s, ThoiGianVe = %s, TRANGTHAIXD = 0 WHERE STT = %s AND TRANGTHAIXD=0;'
+            query_string = f'UPDATE DSDANGKY SET HinhThucRN = %s, DiaDiem = %s, ThoiGianDi = %s, ThoiGianVe = %s, TRANGTHAIXD = 1 WHERE STT = %s AND TRANGTHAIXD=1;'
             param = [hinhThucRN, diaDiem, timeStart, timeEnd,STT]
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
@@ -646,7 +666,7 @@ class PersonViewSet(viewsets.ViewSet):
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
         try:
-            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.MAHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
+            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.STT AS STT_HTRN, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.MAHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
                             LEFT JOIN PERSON ON HOCVIEN.PersonID = PERSON.PersonID \
                             LEFT JOIN HinhThucRN ON DSDANGKY.HinhThucRN = HinhThucRN.STT \

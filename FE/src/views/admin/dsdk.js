@@ -37,6 +37,7 @@ function TableListAdmin() {
   const [TGRa, setTGRa] = useState(new Date());
   const [TGVao, setTGVao] = useState(new Date());
   const [listDSDK, setlistDSDK] = useState([]);
+  const [listHTRN, setlistHTRN] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -73,6 +74,11 @@ function TableListAdmin() {
   useEffect(() => {    
     getDSDK();
   }, [id, selectedDate]);
+
+  async function getHTRN() {
+    const res = await axiosClient.get("/Person/get-list-hinh-thuc-ra-ngoai");
+    setlistHTRN((listHTRN) => [...res.data]);
+  }
   function getMaHVShow(maHv) {
     setShow(true);
     setmaHV(maHV);
@@ -85,7 +91,7 @@ function TableListAdmin() {
     alert("Xóa thành công");
     getDSDK()
   } else {
-    alert("Chỉ xóa khi chưa được xét duyệt")
+    alert("Chỉ được xóa khi chưa xét duyệt")
   }
  }
  const handleDelete = (maDK) => {
@@ -131,27 +137,19 @@ function getThoiGian(ThoiGian){
 function handleEditDSDK (
   STT,
   HTRN,
-  DiaDiem,
-  // TGRa,
-  // TGVao,
-  // gioRa,
-  // gioVao,
-  // phutRa,
-  // phutVao
+  DiaDiem
 ){
+    getHTRN() 
+    console.log(listHTRN)
+    // console.log(HTRN)
     setShowModal(true);
     setSTT(STT)
     setHTRN(HTRN);
     setDiaDiem(DiaDiem);
-    // setTGRa(TGRa);
-    // setTGVao(TGVao);
-    // setHm({ ...hm, gioRa: gioRa});
-    // setHm({ ...hm, phutRa: phutRa});
-    // setHm({ ...hm, gioVao: gioVao});
-    // setHm({ ...hm, phutVao: phutVao});
   };
   const handleEditDSDK1 = (e) => {
     e.preventDefault();
+    // console.log(HTRN)
     if (
       TGRa === "" ||
       TGVao === "" ||
@@ -163,8 +161,7 @@ function handleEditDSDK (
     ) {
       alert("Nhập thiếu nội dung");
     } else{
-      console.log(HTRN)
-      const ngayRa = TGRa.getDate();
+    const ngayRa = TGRa.getDate();
     const thangRa = TGRa.getMonth() + 1;
     const namRa = TGRa.getFullYear();
     const ngayVao = TGVao.getDate();
@@ -175,16 +172,16 @@ function handleEditDSDK (
     const data = {
       STT: STT,
       dia_diem: DiaDiem,
-      hinh_thuc_RN: parseInt(HTRN, 10),
+      hinh_thuc_RN: HTRN,
       time_start: timeRa,
       time_end: timeVao,
     };
-    axiosClient.put("/Person/post-thay_doi-thong-tin-dang-ky/", data).then((res) => {
-      if (res.status === 200) {
+    axiosClient.put("/Person/put-thay_doi-thong-tin-dang-ky/", data).then((res) => {
+      if (res.data.status === true) {
         alert("Chỉnh sửa thành công");
         getDSDK()
       } else {
-        alert("Đã xảy ra lỗi")
+        alert("Chỉ được thay đổi khi chưa xét duyệt!")
       }
     });
     setShowModal(false);
@@ -217,8 +214,12 @@ function handleEditDSDK (
                   class="form-control name-domain"
                   onChange={(event) => setHTRN(event.target.value)}
                 >
-                  <option value="0">Tranh thủ</option>
-                  <option value="1">Ra ngoài</option>
+                  {listHTRN.map((item) => {
+                    return (
+                      // console.log(item.STT_HTRN),
+                      <option value={item.STT}>{item.LOAI}</option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -324,37 +325,12 @@ function handleEditDSDK (
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
-                            <td>
-                              {/* <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e)=>
-                                   handleEditDSDK(
-                                    item.STT,
-                                    (item.HinhThucRN==="Tranh thủ"?0:1),
-                                    item.DiaDiem
-                                    // item.TGRa,
-                                    // item.TGVao,
-
-                                   )}
-                              >
-                                Chỉnh sửa
-                              </Button>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e) => handleDelete(item.STT)}
-                              >
-                                Xóa
-                              </Button> */}
+                            <td>                            
                               <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
                               <p onClick={(e) =>  handleEditDSDK(
                                     item.STT,
-                                    (item.HinhThucRN==="Tranh thủ"?0:1),
+                                    item.STT_HTRN,
                                     item.DiaDiem
-                                    // item.TGRa,
-                                    // item.TGVao,
-
                                    )} className="nc-icon nc-tablet-2 text-primary f-15 m-r-5"
                                title="Chỉnh sửa"
                                style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>

@@ -37,7 +37,7 @@ function TableListAdmin() {
   const [daiDoi, setDaiDoi] = useState();
   const [lop, setLop] = useState();
   const [queQuan, setQueQuan] = useState();
-
+  const [listHTRN, setlistHTRN] = useState([]);
   const [HTRN, setHTRN] = useState(0);
   const [DiaDiem, setDiaDiem] = useState();
   const [TGRa, setTGRa] = useState(new Date());
@@ -74,9 +74,15 @@ function TableListAdmin() {
     getItem();
   }, [id]);
 
+  async function getHTRN() {
+    const res = await axiosClient.get("/Person/get-list-hinh-thuc-ra-ngoai");
+    setlistHTRN((listHTRN) => [...res.data]);
+  }
+
   const handleAddDSDK = (e, maHV) => {
     console.log("thêm");
     e.preventDefault();
+    getHTRN();
     setmaHV(maHV);
     setShowAdd(true);
   };
@@ -108,7 +114,7 @@ function TableListAdmin() {
       const timeVao = `${namVao}-${thangVao}-${ngayVao} ${hm.gioVao}:${hm.phutVao}`;
 
       const data = {
-        hinh_thuc_RN: parseInt(HTRN, 10),
+        hinh_thuc_RN: HTRN,
         dia_diem: DiaDiem,
         time_start: timeRa,
         time_end: timeVao,
@@ -173,8 +179,11 @@ function TableListAdmin() {
                   class="form-control name-domain"
                   onChange={(event) => setHTRN(event.target.value)}
                 >
-                  <option value="0">Tranh thủ</option>
-                  <option value="1">Ra ngoài</option>
+                  {listHTRN.map((item) => {
+                    return (
+                      <option value={item.STT}>{item.LOAI}</option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
