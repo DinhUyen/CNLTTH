@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -27,30 +28,46 @@ function TableListAdmin() {
   const { id, setId } = useContext(GlobalState);
   const [listGTRV, setlistGTRV] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const list_loaiGiayTo = [];
 
   const handleChange = (date) => {
     setSelectedDate(date);
   };
 
+  // useEffect(() => {
+  //   async function getGTRV() {
+  //     const day = selectedDate.getDate();
+  //     const month = selectedDate.getMonth() + 1;
+  //     const year = selectedDate.getFullYear();
+  //     const dateString = `${day}-${month}-${year}`;
+  //     const res = await axiosClient.get(
+  //       `/Person/get-list-giay-to-RN-hoc-vien/?donViID=${id}&timeBetween=${dateString}&page=1&size=12`
+  //     );
+  //     console.log(res)
+  //     setlistGTRV((listGTRV) => [...res.data]);
+  //   }
+  //   getGTRV();
+  // }, [id, selectedDate]);
+  async function getItem() {
+    const day = selectedDate.getDate();
+    const month = selectedDate.getMonth() + 1;
+    const year = selectedDate.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    const res = await axiosClient.get(
+      `/Person/get-list-giay-to-RN-hoc-vien/?donViID=${id}&timeBetween=${dateString}&page=1&size=12`
+    );
+    console.log(res)
+    setlistGTRV((listGTRV) => [...res.data]);
+  }  
   useEffect(() => {
-    async function getGTRV() {
-      const day = selectedDate.getDate();
-      const month = selectedDate.getMonth() + 1;
-      const year = selectedDate.getFullYear();
-      const dateString = `${day}-${month}-${year}`;
-      const res = await axiosClient.get(
-        `/Person/get-list-giay-to-RN-hoc-vien/?donViID=${id}&timeBetween=${dateString}&page=1&size=12`
-      );
-      console.log(res)
-      setlistGTRV((listGTRV) => [...res.data]);
-    }
-    getGTRV();
+    getItem();
   }, [id, selectedDate]);
+ 
   async function xoaGTRV(STT){
     const res = await axiosClient.delete(`/Person/delete-giay-to-RN-hoc-vien/?sttGiayToRN=${STT}`)
     if (res.status === 200) {
       alert("Xóa thành công");
-      getDSDK()
+      getItem()
     } else {
       alert("Đã xảy ra lỗi")
     }
@@ -71,6 +88,12 @@ function TableListAdmin() {
       ]
     });
   };
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   function getTrangThai(loaiGiayTo) {
     switch (loaiGiayTo) {
       case 1:
@@ -129,19 +152,22 @@ function TableListAdmin() {
                             <td>{item.STTGiayTo}</td>
                             <td>{getTrangThai(item.MaLoai)}</td>
                             <td>{item.SoVe}</td>
-                            <td>{item.ThoiGianDi}</td>
-                            <td>{item.ThoiGianVe}</td>
+                            <td>{getThoiGian(item.ThoiGianDi)}</td>
+                            <td>{getThoiGian(item.ThoiGianVe)}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{item.TenLop}</td>
                             <td>
-                            <Button
+                            {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e) => handleDelete(item.STTGiayTo)}
                               >
                                 Xóa
-                              </Button>
+                              </Button> */}
+                              <p onClick={(e) => handleDelete(item.STTGiayTo)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                               title="Xóa"
+                               style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
                             </td>
                           </tr>
                         );

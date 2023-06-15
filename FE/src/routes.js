@@ -115,6 +115,12 @@ const dashboardRoutes = [
     component: dsHVTD,
     layout: "/tieudoan"
   },
+  {
+    path: "/dsdk",
+    name: "Danh sách đăng kí",
+    component: dsdk,
+    layout: "/admin"
+  },
   //DSDK
   {
     path: "/dsdk",

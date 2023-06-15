@@ -12,6 +12,7 @@ import Modal from "react-bootstrap/Modal";
 import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -24,6 +25,7 @@ import {
   Row,
   Col,
   Form,
+  Pagination
 } from "react-bootstrap";
 
 function TableListAdmin() {
@@ -40,6 +42,8 @@ function TableListAdmin() {
   const [showModal, setShowModal] = useState(false);
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [hm, setHm] = useState({
     gioRa: "",
     gioVao: "",
@@ -56,17 +60,17 @@ function TableListAdmin() {
   const handleTimeRa = (date) => {
     setTGRa(date);
   };
-  useEffect(() => {
-    async function getDSDK() {
-      const day = selectedDate.getDate();
-      const month = selectedDate.getMonth() + 1;
-      const year = selectedDate.getFullYear();
-      const dateString = `${day}-${month}-${year}`;
-      const res = await axiosClient.get(
-        `/Person/get-list-dang-ky/?donViID=${id}&timeBetween=${dateString}`
-      );
-      setlistDSDK((listDSDK) => [...res.data]);
-    }
+  async function getDSDK() {
+    const day = selectedDate.getDate();
+    const month = selectedDate.getMonth() + 1;
+    const year = selectedDate.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    const res = await axiosClient.get(
+      `/Person/get-list-dang-ky/?donViID=${id}&timeBetween=${dateString}`
+    );
+    setlistDSDK((listDSDK) => [...res.data]);
+  }
+  useEffect(() => {    
     getDSDK();
   }, [id, selectedDate]);
   function getMaHVShow(maHv) {
@@ -76,11 +80,12 @@ function TableListAdmin() {
 
  async function xoaDSDK(maDK){
   const res = await axiosClient.delete(`/Person/delete-dang-ky/?sttDangKy=${maDK}`)
-  if (res.status === 200) {
+  // console.log(res.data.status)
+  if (res.data.status === true) {
     alert("Xóa thành công");
     getDSDK()
   } else {
-    alert("Đã xảy ra lỗi")
+    alert("Chỉ xóa khi chưa được xét duyệt")
   }
  }
  const handleDelete = (maDK) => {
@@ -99,16 +104,20 @@ function TableListAdmin() {
     ]
   });
 };
+function getThoiGian(ThoiGian){
+  const item = { ThoiGian: ThoiGian};
+  const momentObj = moment(item.ThoiGian);
+  item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+  return item.ThoiGian;
+}
   function getTrangThai(TRANGTHAIXD) {
     switch (TRANGTHAIXD) {
-      case 0:
-        return "Chưa xét duyệt";
       case 1:
-        return "Đại đội đã xét duyệt";
+        return "Chưa xét duyệt";
       case 2:
-        return "Tiểu đoàn đã xét duyệt";
+        return "Đại đội đã xét duyệt";
       case 3:
-      case 4:
+        return "Tiểu đoàn đã xét duyệt";
       case 5:
         return "Học viện đã xét duyệt";
       case -1:
@@ -181,6 +190,11 @@ function handleEditDSDK (
     setShowModal(false);
     }
     
+  };
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
   };
 
   return (
@@ -270,14 +284,16 @@ function handleEditDSDK (
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Col md="3">
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Ngày trong tuần</p>
+                 <Row>
+                 <div style={{ display: "flex", gap: 12 }}>
+                  <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p>
                   <DatePicker
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDate}
                     onChange={handleChange}
                   />
                   </div>
+                 </Row>
                   
                 </Col>
               </Card.Header>
@@ -297,20 +313,19 @@ function handleEditDSDK (
                     </tr>
                   </thead>
                   <tbody>
-                    {listDSDK &&
-                      listDSDK.map((item) => {
+                  {paginate(listDSDK).map((item) => {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
-                            <td>{item.HinhThucRN}</td>
+                            <td>{item.LOAI}</td>
                             <td>{item.DiaDiem}</td>
-                            <td>{item.ThoiGianDi}</td>
-                            <td>{item.ThoiGianVe}</td>
+                            <td>{getThoiGian(item.ThoiGianDi)}</td>
+                            <td>{getThoiGian(item.ThoiGianVe)}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
                             <td>
-                              <Button
+                              {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e)=>
@@ -331,13 +346,72 @@ function handleEditDSDK (
                                 onClick={(e) => handleDelete(item.STT)}
                               >
                                 Xóa
-                              </Button>
+                              </Button> */}
+                              <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
+                              <p onClick={(e) =>  handleEditDSDK(
+                                    item.STT,
+                                    (item.HinhThucRN==="Tranh thủ"?0:1),
+                                    item.DiaDiem
+                                    // item.TGRa,
+                                    // item.TGVao,
+
+                                   )} className="nc-icon nc-tablet-2 text-primary f-15 m-r-5"
+                               title="Chỉnh sửa"
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
+
+                                <p onClick={(e) => handleDelete(item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                                title="Xóa"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                              </div>
+                              
                             </td>
                           </tr>
                         );
                       })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                <Pagination>
+                  {currentPage > 1 && (
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} className="prev"/>
+                  )}
+                  {currentPage > 2 && (
+                    <Pagination.Ellipsis
+                      onClick={() => setCurrentPage(Math.floor(currentPage / 2))}
+                    />
+                  )}
+                  {[...Array(Math.ceil(listDSDK.length / pageSize)).keys()].map(
+                    (number) =>
+                      Math.abs(currentPage - (number + 1)) <= 2 && (
+                        <Pagination.Item
+                          key={number}
+                          active={currentPage === number + 1}
+                          onClick={() => setCurrentPage(number + 1)}
+                        >
+                          {number + 1}
+                        </Pagination.Item>
+                      )
+                  )}
+                  {currentPage <
+                    Math.ceil(listDSDK.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listDSDK.length / pageSize)) /
+                              2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  {currentPage <
+                    Math.ceil(listDSDK.length / pageSize) && (
+                      <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} className="next"/>
+                    )}
+                </Pagination>
+              </div>
               </Card.Body>
             </Card>
           </Col>

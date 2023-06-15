@@ -327,6 +327,7 @@ function TableListAdmin() {
                     <tr>
                     <th className="border-0">STT</th>
                       <th className="border-0">Mã học viên</th>
+                      <th className="border-0">Tên học viên</th>
                       <th className="border-0">Thời gian bắt đầu</th>
                       <th className="border-0">Thời gian kết thúc</th>
                       <th className="border-0">Lí do</th>
@@ -339,6 +340,7 @@ function TableListAdmin() {
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
                             <td>{item.MaHV}</td>
+                            <td>{item.HoTen}</td>
                             <td>{getThoiGian(item.TG_BatDau)}</td>
                             <td>{getThoiGian(item.TG_KetThuc)}</td>
                             <td>{item.LIDO}</td>

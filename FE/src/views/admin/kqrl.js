@@ -27,7 +27,8 @@ function TableListUser() {
   
   useEffect(() => {
     async function getItem() {
-      const url =  `/Person/get-list-ket-qua-ren-luyen-by-id/?page=0&size=12&maHV=${values.maHV}`
+      const url = values.maHV?`/Person/get-list-ket-qua-ren-luyen-by-id/?page=0&size=12&maHV=${values.maHV}`:`/Person/get-list-ket-qua-ren-luyen/?page=0&size=12`
+      // const url =  `/Person/get-list-ket-qua-ren-luyen-by-id/?page=0&size=12&maHV=${values.maHV}`
       const res = await axiosClient.get(url);
 
       console.log(res);

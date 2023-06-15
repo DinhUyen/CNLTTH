@@ -155,7 +155,7 @@ function getThoiGian(ThoiGian){
 
   function getTrangThai(TRANGTHAIXD) {
     switch (TRANGTHAIXD) {
-      case 0:
+      case 1:
         return "Chưa xét duyệt";
       case 2:
         return "Đại đội đã xét duyệt";
@@ -202,7 +202,7 @@ function getThoiGian(ThoiGian){
                       <th className="border-0">Địa điểm</th>
                       <th className="border-0">Thời gian đi</th>
                       <th className="border-0">Thời gian về</th>
-                      {/* <th className="border-0">Mã học viên</th> */}
+                      <th className="border-0">Mã học viên</th>
                       <th className="border-0">Họ tên</th>
                       <th className="border-0">Trạng thái</th>
                       {/* <th className="border-0">Thao tác</th> */}
@@ -217,7 +217,7 @@ function getThoiGian(ThoiGian){
                             <td>{item.DiaDiem}</td>
                             <td>{getThoiGian(item.ThoiGianDi)}</td>
                             <td>{getThoiGian(item.ThoiGianVe)}</td>
-                            {/* <td>{item.MaHV}</td> */}
+                            <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
                             <td>

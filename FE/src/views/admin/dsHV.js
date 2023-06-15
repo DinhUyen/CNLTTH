@@ -9,6 +9,7 @@ import "../../assets/css/btn_vul.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { Link } from "react-router-dom";
+import moment from "moment";
 import './style.css'
 // react-bootstrap components
 import {
@@ -145,6 +146,12 @@ function TableListAdmin() {
     setDaiDoi(daiDoi);
     setLop(lop);
     setQueQuan(queQuan);
+  }
+    function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("DD-MM-YYYY");
+    return item.ThoiGian;
   }
   return (
     <>
@@ -376,45 +383,39 @@ function TableListAdmin() {
                             {/* <td>{item.TENLOAI}</td> */}
                             {/* <td>{item.PERSONID}</td> */}
                             <td>{item.HoTen}</td>
-                            <td>{item.NgSinh}</td>
+                            <td>{getThoiGian(item.NgSinh)}</td>
                             {/* <td>{item.CapBac}</td> */}
                             {/* <td>{item.ChucVu}</td> */}
                             <td>{item.TenDD}</td>
                             <td>{item.TenLop}</td>
                             <td>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e) =>
-                                  getTTHV(
+                  
+                            <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
+                            <p onClick={(e) => getTTHV(
                                     item.MaHV,
                                     item.HoTen,
                                     item.TENLOAI,
-                                    item.NgSinh,
+                                    getThoiGian(item.NgSinh),
                                     item.CapBac,
                                     item.ChucVu,
                                     item.TenDD,
                                     item.TenLop,
                                     item.QueQuan
-                                  )
-                                }
-                              >
-                                Chi tiết
-                              </Button>
-                              {/* <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e) => handleAddDSDK(e, item.MaHV)}
-                              >
-                                Thêm DSDK
-                              </Button> */}
-                              <Link to={`/admin/kqrl?maHV=${item.MaHV}`}> 
-                              <Button type="button" 
-                              className="btn-table btn-left" 
-                              > 
-                              KQRL
-                              </Button>
-                            </Link>
+                                  )} 
+                                  className="nc-icon nc-badge text-success f-15 m-r-5"
+                                title="Thông tin chi tiết"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>                          
+                              <Link 
+                              title="Kết quả rèn luyện"
+                              to={`/admin/kqrl?maHV=${item.MaHV}`}
+                              className="nc-icon nc-layers-3 text-primary f-15 m-r-5" 
+                              style={{ cursor: 'pointer', fontWeight: 'bold'  }}
+                            ></Link>
+                              <p onClick={(e) => handleAddDSDK(e, item.MaHV)} className="nc-icon nc-simple-add text-warning f-15 m-r-5"
+                                title="Đăng ký ra ngoài"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                              
+                            </div>
                              
                             </td>
                             {/* <td>

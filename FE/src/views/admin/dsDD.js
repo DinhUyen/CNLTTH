@@ -41,6 +41,7 @@ function TableListAdmin() {
   const handleShow = () => setShowModal(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [list_loaiGiayTo, setlistLGT] = useState([]);
 
   const handleChange = (date) => {
     setSelectedDate(date);
@@ -55,14 +56,23 @@ function TableListAdmin() {
       const res = await axiosClient.get(
         `/Person/get-list-danh-sach-duoc-duyet/?donViID=${id}&timeBetween=${dateString}`
       );
-      console.log(res)
+      // console.log(res)
       setlistDSDD((listDSDD) => [...res.data]);
     }
     getDSDD();
   }, [id, selectedDate]);
   function handleAddGTRN(STT){
+    getLoaiGiayTo();
     setShowModal(true);
     setSTT(STT);
+   
+    console.log(list_loaiGiayTo)
+    // console.log(listDSDD)
+  }
+  async function getLoaiGiayTo() {
+    const res = await axiosClient.get("/Person/get-list-loai-giay-to/");
+    // console.log(res);
+    setlistLGT((list_loaiGiayTo) => [...res.data]);
   }
   function handleAddGTRN1(){
 
@@ -90,7 +100,7 @@ function TableListAdmin() {
 
   function getTrangThai(TRANGTHAIXD) {
     switch (TRANGTHAIXD) {
-      case 0:
+      case 1:
         return "Chưa xét duyệt";
       case 2:
         return "Đại đội đã xét duyệt";
@@ -130,9 +140,17 @@ function TableListAdmin() {
                   class="form-control name-domain"
                   onChange={(event) => setMaLoai(event.target.value)}
                 >
-                  <option value="1">Tích kê điện tử</option>
+                  {/* <option value="1">Tích kê điện tử</option>
                   <option value="2">Giấy ra vào</option>
-                  <option value="3">Giấy phép</option>
+                  <option value="3">Giấy phép</option> */}
+                  {list_loaiGiayTo.map((item) => {
+                    // console.log(item);
+                    return (
+                      <option value={item.MaLoai}>
+                        {item.TenLoai}
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -187,7 +205,7 @@ function TableListAdmin() {
                       <th className="border-0">Địa điểm</th>
                       <th className="border-0">Thời gian đi</th>
                       <th className="border-0">Thời gian về</th>
-                      {/* <th className="border-0">Mã học viên</th> */}
+                      <th className="border-0">Mã học viên</th>
                       <th className="border-0">Họ tên</th>
                       <th className="border-0">Trạng thái</th>
                       {/* <th className="border-0">Thao tác</th> */}
@@ -202,7 +220,7 @@ function TableListAdmin() {
                             <td>{item.DiaDiem}</td>
                             <td>{getThoiGian(item.ThoiGianDi)}</td>
                             <td>{getThoiGian(item.ThoiGianVe)}</td>
-                            {/* <td>{item.MaHV}</td> */}
+                            <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
                             <td>
@@ -217,7 +235,7 @@ function TableListAdmin() {
                               </Button> */}
                               <p onClick={(e) => handleAddGTRN(item.STT)} className="nc-icon nc-simple-add text-primary f-15 m-r-5"
                                title="Thêm GTRN"
-                               style={{ cursor: 'pointer' }}></p>
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
                               </td>
                               
                               
