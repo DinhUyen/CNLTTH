@@ -10,6 +10,7 @@ from rest_framework import pagination
 from Common import generics_cursor, custom_permission
 from Common.generics import *
 from datetime import datetime, timedelta
+import pytz
 
 
 class PersonPermission(custom_permission.CustomPermissions):
@@ -290,9 +291,33 @@ class PersonViewSet(viewsets.ViewSet):
     
     @swagger_auto_schema(method='get', manual_parameters=[sw_page, sw_size,sw_MaHV], responses=get_list_person_response)
     @action(methods=['GET'], detail=False, url_path='get-list-ket-qua-ren-luyen-by-id')
-    def get_list_ket_qua_ren_luyen_by_id(self, request):
+    def get_list_ket_qua_ren_luyen(self, request):
         """
         API này dùng lấy một list danh sách kết quả rèn luyện học viên sắp xếp theo thời gian giảm dần
+        """
+        donViID = str(request.query_params.get('donViID'))
+        try:
+            query_string = "SELECT HOCVIEN.MAHV,HOCVIEN.personID,HoTen,NgSinh,PERSON.DonViID,ThoiGian,PhanLoaiRL FROM HV_RENLUYEN  \
+                            LEFT JOIN HOCVIEN ON HOCVIEN.MaHV = HV_RENLUYEN.MaHV \
+                            LEFT JOIN KQRL ON KQRL.MaLoai = HV_RENLUYEN.MaLoai\
+                            LEFT JOIN PERSON ON HOCVIEN.PERSONID = PERSON.PersonID \
+                            LEFT JOIN DONVI ON PERSON.DonViID = DONVI.DonViID  \
+                            WHERE  PERSON.DonViID IN (SELECT DonViID FROM DONVI WHERE DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s)\
+                            ORDER BY ThoiGian DESC"
+            print(query_string)
+            obj = generics_cursor.getDictFromQuery(
+                query_string, [donViID, donViID, donViID])
+            if obj is None:
+                return Response(data={}, status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(data=obj, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(method='get', manual_parameters=[sw_page, sw_size,sw_MaHV], responses=get_list_person_response)
+    @action(methods=['GET'], detail=False, url_path='get-list-ket-qua-ren-luyen-by-id')
+    def get_list_ket_qua_ren_luyen_by_id(self, request):
+        """
+        API này dùng lấy một list danh sách kết quả rèn luyện học viên theo mã học viên sắp xếp theo thời gian giảm dần
         """
         maHV = str(request.query_params.get('maHV'))
 
@@ -384,7 +409,7 @@ class PersonViewSet(viewsets.ViewSet):
         time_start, time_end = self.getTimeStartAndFinishWeek(timeBetween)
         print(time_start, time_end)
         try:
-            query_string = f"SELECT * FROM QUYETDINHCAMTRAI \
+            query_string = f"SELECT STT, QUYETDINHCAMTRAI.MAHV, PERSON.HOTEN, TG_BATDAU, TG_KETTHUC, LIDO FROM QUYETDINHCAMTRAI \
                             LEFT JOIN HOCVIEN ON HOCVIEN.MaHV = QUYETDINHCAMTRAI.MaHV \
                             LEFT JOIN PERSON ON HOCVIEN.PERSONID = PERSON.PersonID \
                             LEFT JOIN DONVI ON PERSON.DonViID = DONVI.DonViID  \
@@ -543,7 +568,7 @@ class PersonViewSet(viewsets.ViewSet):
                 print("cam trai")
                 return Response(data={}, status=status.HTTP_403_FORBIDDEN)           
             print("khong cam trai")
-            query_string = f'INSERT INTO DSDANGKY("HinhThucRN","DiaDiem","ThoiGianDi","ThoiGianVe","MaHV","TRANGTHAIXD") VALUES (%s,%s,%s,%s,%s,0);'
+            query_string = f'INSERT INTO DSDANGKY("HinhThucRN","DiaDiem","ThoiGianDi","ThoiGianVe","MaHV","TRANGTHAIXD") VALUES (%s,%s,%s,%s,%s,1);'
             param = [hinhThucRN, diaDiem, timeStart, timeEnd, maHV]
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
@@ -620,9 +645,8 @@ class PersonViewSet(viewsets.ViewSet):
         week_end = week_start + timedelta(days=6)
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
-        
         try:
-            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
+            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.MAHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
                             LEFT JOIN PERSON ON HOCVIEN.PersonID = PERSON.PersonID \
                             LEFT JOIN HinhThucRN ON DSDANGKY.HinhThucRN = HinhThucRN.STT \
@@ -645,7 +669,7 @@ class PersonViewSet(viewsets.ViewSet):
         """
         sttDangKy = request.query_params.get('sttDangKy')
         try:
-            query_string = f"DELETE FROM DSDANGKY WHERE TRANGTHAIXD = 0 AND STT  = %s"
+            query_string = f"DELETE FROM DSDANGKY WHERE TRANGTHAIXD = 1 AND STT  = %s"
             param = [sttDangKy]
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
@@ -679,15 +703,16 @@ class PersonViewSet(viewsets.ViewSet):
         week_end = week_start + timedelta(days=6)
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
-
         print(time_start, time_end)
+        time_xetduyet = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         try:
-            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
+            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe, HOCVIEN.MAHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
                             LEFT JOIN PERSON ON HOCVIEN.PersonID = PERSON.PersonID \
                             LEFT JOIN HinhThucRN ON DSDANGKY.HinhThucRN = HinhThucRN.STT \
                             WHERE (TRANGTHAIXD >= HinhThucRN.QUYEN ) AND \
                             (ThoiGianDi BETWEEN '{time_start}'AND '{time_end}') \
+                            AND '{time_xetduyet}' < ThoiGianDi \
                             AND DSDANGKY.MAHV IN (SELECT MAHV FROM HOCVIEN,PERSON,DONVI WHERE HOCVIEN.personID = PERSON.PersonID AND DONVI.DonViID=PERSON.DonViID\
                             AND (DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s))"
             obj = generics_cursor.getDictFromQuery(
@@ -722,7 +747,7 @@ class PersonViewSet(viewsets.ViewSet):
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
         
         try:
-            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
+            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.MAHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
                             LEFT JOIN PERSON ON HOCVIEN.PersonID = PERSON.PersonID \
                             LEFT JOIN HinhThucRN ON DSDANGKY.HinhThucRN = HinhThucRN.STT \
@@ -761,13 +786,16 @@ class PersonViewSet(viewsets.ViewSet):
         week_end = week_start + timedelta(days=6)
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
+        time_xetduyet = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime("%Y-%m-%d %H:%M:%S")
+        print(time_xetduyet)
         try:
-            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
+            query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.maHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
                             LEFT JOIN PERSON ON HOCVIEN.PersonID = PERSON.PersonID \
                             LEFT JOIN HinhThucRN ON DSDANGKY.HinhThucRN = HinhThucRN.STT \
                             WHERE (TRANGTHAIXD >= 0) AND (TRANGTHAIXD < {permission}) AND  \
                             (ThoiGianDi BETWEEN '{time_start}'AND '{time_end}')  AND\
+                            '{time_xetduyet}' < ThoiGianDi AND\
                             TRANGTHAIXD < HinhThucRN.QUYEN \
                             AND DSDANGKY.MAHV IN (SELECT MAHV FROM HOCVIEN,PERSON,DONVI WHERE HOCVIEN.personID = PERSON.PersonID AND DONVI.DonViID=PERSON.DonViID\
                             AND (DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s))"
@@ -894,7 +922,14 @@ class PersonViewSet(viewsets.ViewSet):
         size = request.query_params.get('size')
         if timeBetween is None:
             timeBetween = datetime.now().strftime("%d-%m-%Y")
-        time_start, time_end = self.getTimeStartAndFinishWeek(timeBetween)
+        time_format = "%d-%m-%Y"
+        current_time = datetime.strptime(timeBetween, time_format)
+        current_weekday = current_time.weekday()
+        week_start = current_time - timedelta(days=current_weekday)
+        week_end = week_start + timedelta(days=6)
+        time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
+        time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
+        
         try:
             query_string = f"SELECT * FROM HV_GIAYTORN \
                             LEFT JOIN GIAYTORN ON GIAYTORN.MaLoai = HV_GIAYTORN.MaLoai  \
