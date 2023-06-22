@@ -35,9 +35,9 @@ function TableListAdmin() {
     const [TGKT, setTGKT] = useState(new Date());
     const [listDSCT, setlistDSCT] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [show, setShow] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [show, setShow] = useState(false);
     const [showModalAdd, setshowModalAdd] = useState(false);
     const handleCloseAdd = () => setshowModalAdd(false);
     const handleShowAdd = () => setshowModalAdd(true);
@@ -118,6 +118,14 @@ function TableListAdmin() {
     item.ThoiGian= momentObj.format("DD-MM-YYYY");
     return item.ThoiGian;
   }
+
+function handleEditDSCT (STT, MaHV, liDo) {
+    console.log("thêm");
+    setshowModalEdit(true);
+    setSTT(STT);
+    setMaHV(MaHV);
+    setLiDo(liDo)
+  };
   const handleEditDSCT1 = (e) => {
     e.preventDefault();
     if (
@@ -158,12 +166,12 @@ function TableListAdmin() {
       }
     
   };
-
   const paginate = (targets) => {
     const startIndex = (currentPage - 1) * pageSize;
     const endIndex = startIndex + pageSize;
     return targets.slice(startIndex, endIndex);
   };
+
 
   return (
     <>
@@ -300,9 +308,9 @@ function TableListAdmin() {
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
-                <Col md="3">
-                  <Row>
-                  <div style={{ display: "flex", gap: 12 }}>
+                <Col md="6">
+                <Row>
+                 <div style={{ display: "flex", gap: 12 }}>
                   <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p>
                   <DatePicker
                     dateFormat="dd/MM/yyyy"
@@ -310,16 +318,16 @@ function TableListAdmin() {
                     onChange={handleChange}
                   />
                   </div>
-                  </Row>
-                  
-                </Col>
-                {/* <button
+                  <button
                   type="button"
                   class="btn btn-add-target  btn-table btn-left"
                   onClick={handleAddDSCT}
                 >
                   THÊM MỚI
-                </button> */}
+                </button>
+                 </Row>
+                </Col>
+               
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">
@@ -327,11 +335,12 @@ function TableListAdmin() {
                     <tr>
                     <th className="border-0">STT</th>
                       <th className="border-0">Mã học viên</th>
-                      <th className="border-0">Tên học viên</th>
+                      <th className="border-0">Họ tên</th>
+                      <th className="border-0">Lớp</th>
                       <th className="border-0">Thời gian bắt đầu</th>
                       <th className="border-0">Thời gian kết thúc</th>
                       <th className="border-0">Lí do</th>
-                      {/* <th className="border-0">Thao tác</th> */}
+                      <th className="border-0">Thao tác</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -341,10 +350,12 @@ function TableListAdmin() {
                             <td>{item.STT}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
+                            <td>{item.TenLop}</td>
                             <td>{getThoiGian(item.TG_BatDau)}</td>
+                            {/* <td>{item.TG_KetThuc}</td> */}
                             <td>{getThoiGian(item.TG_KetThuc)}</td>
                             <td>{item.LIDO}</td>
-                            {/* <td>
+                            <td>
                               <Button
                                 type="button"
                                 className="btn-table btn-left"
@@ -364,7 +375,7 @@ function TableListAdmin() {
                               >
                                 Xóa
                               </Button>
-                            </td> */}
+                            </td>
                           </tr>
                         );
                       })}

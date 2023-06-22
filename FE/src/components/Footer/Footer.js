@@ -23,7 +23,7 @@ class Footer extends Component {
     return (
       <footer className="footer px-0 px-lg-3">
         <Container fluid>
-          <nav>
+          {/* <nav>
             <ul className="footer-menu">
               <li>
                 <a href="#pablo" onClick={(e) => e.preventDefault()}>
@@ -51,7 +51,7 @@ class Footer extends Component {
               <a href="http://www.creative-tim.com">Creative Tim</a>, made with
               love for a better web
             </p>
-          </nav>
+          </nav> */}
         </Container>
       </footer>
     );

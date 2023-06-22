@@ -409,7 +409,7 @@ class PersonViewSet(viewsets.ViewSet):
         time_start, time_end = self.getTimeStartAndFinishWeek(timeBetween)
         print(time_start, time_end)
         try:
-            query_string = f"SELECT STT, QUYETDINHCAMTRAI.MAHV, PERSON.HOTEN, TG_BATDAU, TG_KETTHUC, LIDO FROM QUYETDINHCAMTRAI \
+            query_string = f"SELECT STT, QUYETDINHCAMTRAI.MAHV, PERSON.HOTEN, LOP.TENLOP, TG_BATDAU, TG_KETTHUC, LIDO FROM QUYETDINHCAMTRAI \
                             LEFT JOIN HOCVIEN ON HOCVIEN.MaHV = QUYETDINHCAMTRAI.MaHV \
                             LEFT JOIN PERSON ON HOCVIEN.PERSONID = PERSON.PersonID \
                             LEFT JOIN DONVI ON PERSON.DonViID = DONVI.DonViID  \
