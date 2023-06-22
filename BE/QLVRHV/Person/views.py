@@ -289,8 +289,8 @@ class PersonViewSet(viewsets.ViewSet):
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data=obj, status=status.HTTP_200_OK)
     
-    @swagger_auto_schema(method='get', manual_parameters=[sw_page, sw_size,sw_MaHV], responses=get_list_person_response)
-    @action(methods=['GET'], detail=False, url_path='get-list-ket-qua-ren-luyen-by-id')
+    @swagger_auto_schema(method='get', manual_parameters=[sw_page, sw_size,sw_DonViID], responses=get_list_person_response)
+    @action(methods=['GET'], detail=False, url_path='get-list-ket-qua-ren-luyen')
     def get_list_ket_qua_ren_luyen(self, request):
         """
         API này dùng lấy một list danh sách kết quả rèn luyện học viên sắp xếp theo thời gian giảm dần

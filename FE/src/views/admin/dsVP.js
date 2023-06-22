@@ -197,7 +197,7 @@ function TableListAdmin() {
                             <td>{item.TenLop}</td>
                             <td>{item.GhiChu}</td>
                             <td>
-                              <Button
+                              {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e) => 
@@ -206,7 +206,16 @@ function TableListAdmin() {
                                   )}
                               >
                                 Thêm QDCT
-                              </Button></td>
+                              </Button> */}
+                               <p  onClick={(e) => 
+                                  handleAddQDCT(
+                                     item.MaHV
+                                  )}
+                                  className="nc-icon nc-simple-add text-primary f-15 m-r-5"
+                               title="Thêm QĐCT"
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
+
+                              </td>
                           </tr>
                         );
                       })}

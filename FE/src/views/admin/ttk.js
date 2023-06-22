@@ -28,13 +28,17 @@ function TableListAdmin() {
   const handleShow = () => setShowModal(true);
   const [personID, setPersonID] =useState()
   const [username, setUsername] = useState()
-  const [roleID, setRoleID] = useState()
-  useEffect(() => {
-    async function getItem() {
-      const res = await axiosClient.get("/Person/get-list-account/?page=1&size=12");
+  const [roleID, setRoleID] = useState("1")
+  const [showModalAdd, setshowModalAdd] = useState(false);
+  const handleCloseAdd = () => setshowModalAdd(false);
+  const handleShowAdd = () => setshowModalAdd(true);
+  async function getItem() {
+    const res = await axiosClient.get("/Person/get-list-account/?page=1&size=12");
 
-      setlistAccount((listAccount) => [...res.data]);
-    }
+    setlistAccount((listAccount) => [...res.data]);
+  }
+  useEffect(() => {
+   
     getItem();
 
   }, []);
@@ -44,10 +48,13 @@ function TableListAdmin() {
   }
   function setRole1(){
 console.log(roleID)
+const parsedRoleID = parseInt(roleID);
+const parsedPersonID = parseInt(personID);
     const data ={
       username: username,
-      personID: personID,
-      roleID: roleID
+      roleID: parsedRoleID,
+      personID: parsedPersonID
+      
     }
     axiosClient.post("/account/setRoleUser", data).then((res)=>{
       if (res.status === 200) {
@@ -75,6 +82,7 @@ console.log(roleID)
         return "Không xác định";
     }
   }
+  
 
   return (
     <>
