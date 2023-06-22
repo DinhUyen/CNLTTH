@@ -331,7 +331,7 @@ function handleEditDSDK (
                                     item.STT,
                                     item.STT_HTRN,
                                     item.DiaDiem
-                                   )} className="nc-icon nc-tablet-2 text-primary f-15 m-r-5"
+                                   )} className="nc-icon nc-notes text-primary f-15 m-r-5"
                                title="Chỉnh sửa"
                                style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
 

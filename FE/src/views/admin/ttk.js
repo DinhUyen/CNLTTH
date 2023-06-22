@@ -143,11 +143,12 @@ console.log(roleID)
                       <th className="border-0">ID</th>
                       <th className="border-0">Tên đăng nhập</th>
                       <th className="border-0">Họ tên</th>
-                      <th className="border-0">Quyền</th>
-                      <th className="border-0">Người tạo quyền</th>
+                      <th className="border-0">Cấp bậc</th>
+                      <th className="border-0">Chức Vụ</th>                     
                       <th className="border-0">Tiểu đoàn</th>
                       <th className="border-0">Đại đội</th>
                       <th className="border-0">Lớp</th>
+                      <th className="border-0">Quyền</th>
                       <th className="border-0">Thao tác</th>
                     </tr>
                   </thead>
@@ -159,15 +160,21 @@ console.log(roleID)
                             <td>{item.id}</td>
                             <td>{item.username}</td>
                             <td>{item.HoTen}</td>
-                            <td>{getRole(item.roleID)}</td>
-                            <td>{item.userSetRole}</td>
+                            <td>{item.CapBac}</td>
+                            <td>{item.ChucVu}</td>                                                      
                             <td>{item.TenTD}</td>
                             <td>{item.TenDD}</td>
                             <td>{item.TenLop}</td>
+                            <td>{getRole(item.roleID)}</td> 
                             <td>
-                              <Button onClick={() => setRole(item.username)}>
+                              {/* <Button onClick={() => setRole(item.username)}>
                                 Set Role
-                              </Button>
+                              </Button> */}
+                            
+                              <p onClick={(e) => setRole(item.username)} className="nc-icon   nc-settings-gear-64 text-primary f-15 m-r-5"
+                                title="Đặt quyền cho người dùng"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+
                             </td>
                           </tr>
                         );

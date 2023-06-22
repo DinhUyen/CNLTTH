@@ -175,7 +175,7 @@ class PersonViewSet(viewsets.ViewSet):
                             LEFT JOIN LOP ON LOP.MaLop= DONVI.MaLop \
                             LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
                             LEFT JOIN TIEUDOAN ON TIEUDOAN.MaTD = DONVI.MaTieuDoan \
-                            ORDER BY DONVI.MaLop,DONVI.MaDaiDoi,DONVI.MaTieuDoan"
+                            ORDER BY Account_user.RoleID DESC"
             obj = generics_cursor.getDictFromQuery(
                 query_string, [], page=page, size=size)
             if obj is None:
@@ -409,7 +409,7 @@ class PersonViewSet(viewsets.ViewSet):
         time_start, time_end = self.getTimeStartAndFinishWeek(timeBetween)
         print(time_start, time_end)
         try:
-            query_string = f"SELECT STT, QUYETDINHCAMTRAI.MAHV, PERSON.HOTEN, LOP.TENLOP, TG_BATDAU, TG_KETTHUC, LIDO FROM QUYETDINHCAMTRAI \
+            query_string = f"SELECT QUYETDINHCAMTRAI.STT, QUYETDINHCAMTRAI.MAHV, PERSON.HOTEN, LOP.TENLOP, TG_BATDAU, TG_KETTHUC, LIDO FROM QUYETDINHCAMTRAI \
                             LEFT JOIN HOCVIEN ON HOCVIEN.MaHV = QUYETDINHCAMTRAI.MaHV \
                             LEFT JOIN PERSON ON HOCVIEN.PERSONID = PERSON.PersonID \
                             LEFT JOIN DONVI ON PERSON.DonViID = DONVI.DonViID  \
@@ -497,13 +497,15 @@ class PersonViewSet(viewsets.ViewSet):
 
             query_string = f'UPDATE QUYETDINHCAMTRAI SET TG_BatDau = %s, TG_KetThuc = %s, LIDO = %s WHERE STT = %s;'
             param = [timeStart,timeEnd,reason,STT]
+            print(param)
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
                 rows_affected = cursor.rowcount
                 print(rows_affected)
             if rows_affected == 0:
                 return Response(data={"status": False}, status=status.HTTP_200_OK)
-        except:
+        except Exception as e:
+            print(e)
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data={"status": True}, status=status.HTTP_200_OK)
 
@@ -1328,7 +1330,7 @@ class VeBinhViewSet(viewsets.ViewSet):
         donViID = str(request.query_params.get('donViID'))
 
         try:
-            query_string = f'SELECT * FROM HV_VIPHAM \
+            query_string = f'SELECT HV_VIPHAM.STT, HV_VIPHAM.STTRaNgoai, HOCVIEN.MaHV, Person.HoTen, LOP.TenLop, DAIDOI.TENDD, HV_VIPHAM.GhiChu FROM HV_VIPHAM \
                             LEFT JOIN LOIVIPHAM ON HV_VIPHAM.MaLoiVP = LOIVIPHAM.MaLoiVP \
                             LEFT JOIN VAORACONG ON VAORACONG.STTRaNgoai = HV_VIPHAM.STTRaNgoai \
                             LEFT JOIN HV_GIAYTORN ON VAORACONG.STTGiayTo = HV_GIAYTORN.STTGiayTo \

@@ -56,7 +56,7 @@ function TableListAdmin() {
       const year = selectedDate.getFullYear();
       const dateString = `${day}-${month}-${year}`;
       const res = await axiosClient.get(
-        "/VeBinh/get-list-loi-vi-pham-/?page=1&size=12"
+        `/VeBinh/get-list-loi-vi-pham-theo-theo-don-vi/?donViID=${id}`
       );
       console.log(res)
       setlistDSVP((listDSVP) => [...res.data]);
@@ -179,7 +179,6 @@ function TableListAdmin() {
                       <th className="border-0">STT ra ngoài</th>
                       <th className="border-0">Mã học viên</th>
                       <th className="border-0">Họ tên</th>
-                      <th className="border-0">Tiểu đoàn</th>
                       <th className="border-0">Đại đội</th>
                       <th className="border-0">Lớp</th>
                       <th className="border-0">Lỗi</th>
@@ -194,10 +193,9 @@ function TableListAdmin() {
                             <td>{item.STTRaNgoai}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
-                            <td>{item.TenTD}</td>
                             <td>{item.TenDD}</td>
                             <td>{item.TenLop}</td>
-                            <td>{item.TenLoi}</td>
+                            <td>{item.GhiChu}</td>
                             <td>
                               <Button
                                 type="button"

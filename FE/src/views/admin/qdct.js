@@ -53,8 +53,6 @@ function TableListAdmin() {
     const handleTimeKT = (date) => {
       setTGKT(date);
     };
-
-  useEffect(() => {
     async function getDSCT() {
       const day = selectedDate.getDate();
       const month = selectedDate.getMonth() + 1;
@@ -65,6 +63,8 @@ function TableListAdmin() {
       console.log(res)
       setlistDSCT((listDSCT) => [...res.data]);
     }
+  useEffect(() => {
+   
     getDSCT();
   }, [id, selectedDate]);
   const handleAddDSCT = (e) => {
@@ -152,7 +152,7 @@ function handleEditDSCT (STT, MaHV, liDo) {
       reason: liDo,
       time_start: timeBD,
       time_end: timeKT,
-      ma_HV: maHV,
+      STT: STT,
     };
     axiosClient.put("/Person/put-thay-doi-thong-tin-cam-trai/", data).then((res) => {
         if (res.status === 200) {
@@ -356,7 +356,7 @@ function handleEditDSCT (STT, MaHV, liDo) {
                             <td>{getThoiGian(item.TG_KetThuc)}</td>
                             <td>{item.LIDO}</td>
                             <td>
-                              <Button
+                              {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e)=>
@@ -374,7 +374,22 @@ function handleEditDSCT (STT, MaHV, liDo) {
                                 onClick={(e) => handleDelete(item.STT)}
                               >
                                 Xóa
-                              </Button>
+                              </Button> */}
+                              <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
+                              <p  onClick={(e)=>
+                                   handleEditDSCT(
+                                    item.STT,
+                                    item.MaHV,
+                                    item.LIDO
+                                   )}
+                                  className="nc-icon nc-notes text-primary f-15 m-r-5"
+                               title="Chỉnh sửa"
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
+
+                                <p onClick={(e) => handleDelete(item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                                title="Xóa"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                              </div>
                             </td>
                           </tr>
                         );
