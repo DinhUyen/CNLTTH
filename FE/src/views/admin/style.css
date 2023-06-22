@@ -11,3 +11,7 @@
 .pagination .page-link{
     color: rgb(29, 199, 234);
 }
+.search{
+    text-transform: none!important;
+    font-size: 15px !important;
+}

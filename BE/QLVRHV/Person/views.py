@@ -254,10 +254,10 @@ class PersonViewSet(viewsets.ViewSet):
                             LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
                             LEFT JOIN TIEUDOAN ON TIEUDOAN.MaTD = DONVI.MaTieuDoan \
                             LEFT JOIN LOAIHOCVIEN ON LOAIHOCVIEN.MALOAI = HOCVIEN.LOAIHOCVIEN \
-                            WHERE HOCVIEN.MaHV = %s AND \
+                            WHERE HOCVIEN.MaHV LIKE %s AND \
                             PERSON.DonViID IN (SELECT DonViID FROM DONVI WHERE DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s)"
             obj = generics_cursor.getDictFromQuery(
-                query_string, [maHV,donViID, donViID, donViID])
+                query_string, [f"%{maHV}%",donViID, donViID, donViID])
             if obj is None:
                 return Response(data={}, status=status.HTTP_204_NO_CONTENT)
         except:
@@ -279,7 +279,7 @@ class PersonViewSet(viewsets.ViewSet):
                             LEFT JOIN LOP ON LOP.MaLop= DONVI.MaLop \
                             LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
                             LEFT JOIN TIEUDOAN ON TIEUDOAN.MaTD = DONVI.MaTieuDoan \
-                            WHERE PERSON.PersonID = %s AND \
+                            WHERE PERSON.PersonID LIKE %s AND \
                             PERSON.DonViID IN (SELECT DonViID FROM DONVI WHERE DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s)"
             obj = generics_cursor.getDictFromQuery(
                 query_string, [personId,donViID, donViID, donViID])
