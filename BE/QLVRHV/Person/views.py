@@ -828,7 +828,7 @@ class PersonViewSet(viewsets.ViewSet):
                             (ThoiGianDi BETWEEN '{time_start}'AND '{time_end}')  AND\
                             '{time_xetduyet}' < ThoiGianDi AND\
                             TRANGTHAIXD < HinhThucRN.QUYEN \
-                            AND HinhThucRN.QUYEN = '{permission}' \
+                            AND HinhThucRN.QUYEN >= '{permission}' \
                             AND DSDANGKY.MAHV IN (SELECT MAHV FROM HOCVIEN,PERSON,DONVI WHERE HOCVIEN.personID = PERSON.PersonID AND DONVI.DonViID=PERSON.DonViID\
                             AND (DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s))"
             obj = generics_cursor.getDictFromQuery(
