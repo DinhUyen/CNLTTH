@@ -9,6 +9,8 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import Modal from "react-bootstrap/Modal";
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -29,7 +31,10 @@ function TableListAdmin() {
   const [listDSRV, setlistDSRV] = useState([]);
   const [selectedDateBD, setselectedDateBD] = useState(new Date());
   const [selectedDateKT, setselectedDateKT] = useState(new Date());
-
+  const [showModalAdd, setshowModalAdd] = useState(false);
+  const [STTGiayTo, setSTTGiayTo] = useState()
+  const handleCloseAdd = () => setshowModalAdd(false);
+  const handleShowAdd = () => setshowModalAdd(true);
   const handleChange = (date) => {
     setselectedDateBD(date);
   };
@@ -55,32 +60,101 @@ function TableListAdmin() {
     }
     getDSRV();
   }, [id, selectedDateBD, selectedDateKT]);
-
-  
+  const handleAddDSRV = (e) => {
+    console.log("thêm");
+    e.preventDefault();
+    setshowModalAdd(true);
+  };
+  const handleAddDSRV1 = (e) => {
+    
+    const data = {
+      STTGiayTo: STTGiayTo
+    };
+    axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {console.log(res)});
+    setshowModalAdd(false);
+  };
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   return (
     <>
+    <Modal
+        style={{ transform: "none" }}
+        show={showModalAdd}
+        onShow={handleShowAdd}
+        onHide={handleCloseAdd}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Thêm danh sách ra vào</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <div className="form-group">
+              <label>Số giấy tờ</label>
+              <div>
+              <input
+                className="form-control url"
+                value={STTGiayTo}
+                onChange={(e) => setSTTGiayTo(e.target.value)}
+              />
+              </div>
+            </div>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleAddDSRV1}
+            className="btn-table btn-left"
+          >
+            Thêm
+          </Button>
+          <Button onClick={handleCloseAdd} variant="secondary" type="submit">
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Container fluid>
         <Row>
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Col md="3">
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Thời gian bắt đầu</p>
+                <Row>
+                <div style={{ display: "flex", gap: "12px", alignItems:"center", marginTop:"20px" }}>
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian bắt đầu</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateBD}
                     onChange={handleChange}
+                    // style={{width:"10%"}} 
                   />
-                  </div>
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Thời gian kết thúc</p>
+                  
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian kết thúc</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateKT}
                     onChange={handleChangeKT}
+                    // style={{width:"150%"}}
                   />
+                   {/* <button
+                  type="button"
+                  class="btn btn-add-target  btn-table btn-left"
+                  style={{ width: "300px" }}
+                  onClick={handleAddDSRV}
+                >
+                  THÊM MỚI
+                </button> */}
                   </div>
+
+                 
+                 </Row>
+                 
                   
                 </Col>
               </Card.Header>
@@ -109,8 +183,8 @@ function TableListAdmin() {
                             <td>{item.STTGiayTo}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
-                            <td>{item.TG_Ra}</td>
-                            <td>{item.TG_Vao}</td>
+                            <td>{getThoiGian(item.TG_Ra)}</td>
+                            <td>{item.TG_Vao?getThoiGian(item.TG_Vao):"Chưa vào"}</td>
                             <td>{item.STTDaDuyet}</td>
                             <td>{item.SoVe}</td>
                             <td>{item.TenLoai}</td>

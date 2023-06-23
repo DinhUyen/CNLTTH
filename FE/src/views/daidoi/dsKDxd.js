@@ -9,6 +9,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -63,6 +64,12 @@ function TableListAdmin() {
         return "Không xác định";
     }
   }
+    function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
 
   return (
     <>
@@ -72,14 +79,16 @@ function TableListAdmin() {
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Col md="3">
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Ngày trong tuần</p>
+                 <Row>
+                 <div style={{ display: "flex", gap: 12 }}>
+                  <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p>
                   <DatePicker
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDate}
                     onChange={handleChange}
                   />
                   </div>
+                 </Row>
                   
                 </Col>
               </Card.Header>
@@ -93,6 +102,7 @@ function TableListAdmin() {
                       <th className="border-0">Thời gian đi</th>
                       <th className="border-0">Thời gian về</th>
                       <th className="border-0">Mã học viên</th>
+                      <th className="border-0">Họ tên</th>
                       <th className="border-0">Trạng thái</th>
                     </tr>
                   </thead>
@@ -102,11 +112,12 @@ function TableListAdmin() {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
-                            <td>{item.HinhThucRN}</td>
+                            <td>{item.LOAI}</td>
                             <td>{item.DiaDiem}</td>
-                            <td>{item.ThoiGianDi}</td>
-                            <td>{item.ThoiGianVe}</td>
+                            <td>{getThoiGian(item.ThoiGianDi)}</td>
+                            <td>{getThoiGian(item.ThoiGianVe)}</td>
                             <td>{item.MaHV}</td>
+                            <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
                           </tr>
                         );

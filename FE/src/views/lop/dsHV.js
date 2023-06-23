@@ -39,7 +39,7 @@ function TableListAdmin() {
   const [lop, setLop] = useState();
   const [queQuan, setQueQuan] = useState();
   const [listHTRN, setlistHTRN] = useState([]);
-  const [HTRN, setHTRN] = useState(0);
+  const [HTRN, setHTRN] = useState(1);
   const [DiaDiem, setDiaDiem] = useState();
   const [TGRa, setTGRa] = useState(new Date());
   const [TGVao, setTGVao] = useState(new Date());

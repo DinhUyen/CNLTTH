@@ -141,7 +141,7 @@ function TableListAdmin() {
                       <th className="border-0">Mã học viên</th>
                       <th className="border-0">Họ tên</th>
                       <th className="border-0">Lớp</th>
-                      <th className="border-0">Thao tác</th>
+                      {/* <th className="border-0">Thao tác</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -165,9 +165,9 @@ function TableListAdmin() {
                               >
                                 Xóa
                               </Button> */}
-                              <p onClick={(e) => handleDelete(item.STTGiayTo)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                              {/* <p onClick={(e) => handleDelete(item.STTGiayTo)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
                                title="Xóa"
-                               style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                               style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p> */}
                             </td>
                           </tr>
                         );
