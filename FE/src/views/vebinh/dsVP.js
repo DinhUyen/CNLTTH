@@ -10,6 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import Modal from "react-bootstrap/Modal";
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -88,7 +89,12 @@ function TableListAdmin() {
     })
     setShowModal(false);
   }
-
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   return (
     <>
     <Modal

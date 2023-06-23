@@ -961,7 +961,6 @@ class PersonViewSet(viewsets.ViewSet):
         week_end = week_start + timedelta(days=6)
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
-        
         try:
             query_string = f"SELECT * FROM HV_GIAYTORN \
                             LEFT JOIN GIAYTORN ON GIAYTORN.MaLoai = HV_GIAYTORN.MaLoai  \
@@ -1159,6 +1158,10 @@ class VeBinhViewSet(viewsets.ViewSet):
         size = request.query_params.get('size')
         timeStart = request.query_params.get('timeStart')
         timeEnd = request.query_params.get('timeEnd')
+        datetime_format = '%Y-%m-%d'
+        timeStart = datetime.strptime(timeStart, datetime_format)
+        timeEnd = datetime.strptime(timeEnd, datetime_format)
+        print(timeStart)
         try:
             query_string = f'SELECT * FROM VAORACONG \
                             LEFT JOIN HV_GIAYTORN ON VAORACONG.STTGiayTo = HV_GIAYTORN.STTGiayTo \
@@ -1239,7 +1242,8 @@ class VeBinhViewSet(viewsets.ViewSet):
                 query_string, [], page=page, size=size)
             if obj is None:
                 return Response(data={}, status=status.HTTP_204_NO_CONTENT)
-        except:
+        except Exception as e:
+            print(e)
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data=obj, status=status.HTTP_200_OK)
 
@@ -1288,7 +1292,9 @@ class VeBinhViewSet(viewsets.ViewSet):
         """
         dataDict = request.data
         try:
-            time_start = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            time_start = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime("%Y-%m-%d %H:%M:%S")
+            print("Time start : ", time_start)
+            # time_start = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             STTGiayTo = dataDict.get("STTGiayTo")
             query_string = f'INSERT INTO VAORACONG("STTGiayTo","TG_Ra") VALUES (%s,%s);'
             param = [STTGiayTo,time_start]
@@ -1305,7 +1311,7 @@ class VeBinhViewSet(viewsets.ViewSet):
     @swagger_auto_schema(method='post', manual_parameters=[], request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT, required=None,
         properties={
-            'STTGiayTo': openapi.Schema(type=openapi.TYPE_INTEGER,description="Số thứ tự giấy tờ", default=23),
+            'STTRaNgoai': openapi.Schema(type=openapi.TYPE_INTEGER,description="Số thứ tự ra ngoài", default=23),
         }
     ), responses=post_list_person_response)
     @action(methods=['POST'], detail=False, url_path='post-vao-cong')
@@ -1315,16 +1321,19 @@ class VeBinhViewSet(viewsets.ViewSet):
         """
         dataDict = request.data
         try:
-            time_end = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-            STTGiayTo = dataDict.get("STTGiayTo")
-            query_string = f'UPDATE VAORACONG SET TG_Vao = %s WHERE STTGiayTo= %s'
-            param = [time_end,STTGiayTo]
+            time_end = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime("%Y-%m-%d %H:%M:%S")
+            print("Time end : ", time_end)
+            # time_end = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            STTRaNgoai = dataDict.get("STTRaNgoai")
+            query_string = f'UPDATE VAORACONG SET TG_Vao = %s WHERE STTRaNgoai= %s'
+            param = [time_end,STTRaNgoai]
+            print(param)
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
                 rows_affected = cursor.rowcount
                 print(rows_affected)
             if rows_affected == 0:
-                return Response(data={"status": False}, status=status.HTTP_200_OK)
+                return Response(data={"status": False}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except:
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(data={"status": True}, status=status.HTTP_200_OK)

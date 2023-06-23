@@ -10,7 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import Modal from "react-bootstrap/Modal";
-
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -73,7 +73,12 @@ function TableListAdmin() {
     axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {console.log(res)});
     setshowModalAdd(false);
   };
-  
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   return (
     <>
     <Modal
@@ -178,8 +183,8 @@ function TableListAdmin() {
                             <td>{item.STTGiayTo}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
-                            <td>{item.TG_Ra}</td>
-                            <td>{item.TG_Vao}</td>
+                            <td>{getThoiGian(item.TG_Ra)}</td>
+                            <td>{getThoiGian(item.TG_Vao)}</td>
                             <td>{item.STTDaDuyet}</td>
                             <td>{item.SoVe}</td>
                             <td>{item.TenLoai}</td>

@@ -10,6 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import Modal from "react-bootstrap/Modal";
+import moment from "moment";
 
 // react-bootstrap components
 import {
@@ -30,37 +31,38 @@ function TableListAdmin() {
   const [maHV, setmaHV] = useState();
   const [listDSDRN, setlistDSDRN] = useState([]);
   const [STTGiayTo, setSTTGiayTo] = useState()
-
+ 
+  async function getDSDRN() {
+    const res = await axiosClient.get(
+    "/VeBinh/get-list-danh-sach-ra-ngoai-chua-vao/?page=0&size=12"      );
+    console.log(res)
+    setlistDSDRN((listDSDRN) => [...res.data]);
+  }
   useEffect(() => {
-    async function getDSDRN() {
-      const res = await axiosClient.get(
-      "/VeBinh/get-list-danh-sach-ra-ngoai-chua-vao/?page=0&size=12"      );
-      console.log(res)
-      setlistDSDRN((listDSDRN) => [...res.data]);
-    }
+   
     getDSDRN();
   }, [id]);
 
-  async function confirm(STTGiayTo){
+  async function confirm(STTRaNgoai){
     const data ={
-      STTGiayTo: STTGiayTo
+      STTRaNgoai: STTRaNgoai
     }
-    const res = await axiosClient.post("/VeBinh/post-vao-cong", data)
+    const res = await axiosClient.post("/VeBinh/post-vao-cong/", data)
     if (res.status === 200) {
       alert("Thành công");
-      getDSDK()
+      getDSDRN();
     } else {
       alert("Đã xảy ra lỗi")
     }
    }
-   const handleConfirm = (STTGiayTo) => {
-    console.log(STTGiayTo)
+   const handleConfirm = (STTRaNgoai) => {
+    console.log(STTRaNgoai)
     confirmAlert({
       message: 'Xác nhận đã vào?',
       buttons: [
         {
           label: 'Có',
-          onClick: () => confirm(STTGiayTo)
+          onClick: () => confirm(STTRaNgoai)
         },
         {
           label: 'Không',
@@ -69,6 +71,12 @@ function TableListAdmin() {
       ]
     });
   };
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   return (
     <>
       <Container fluid>
@@ -101,7 +109,7 @@ function TableListAdmin() {
                             <td>{item.STTGiayTo}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
-                            <td>{item.TG_Ra}</td>
+                            <td>{getThoiGian(item.TG_Ra)}</td>
                             <td>{item.STTDaDuyet}</td>
                             <td>{item.SoVe}</td>
                             <td>{item.TenLoai}</td>
@@ -109,7 +117,7 @@ function TableListAdmin() {
                             <Button
                                 type="button"
                                 className="btn-table btn-left"
-                                onClick={(e) => handleConfirm(item.STTGiayTo)}
+                                onClick={(e) => handleConfirm(item.STTRaNgoai)}
                               >
                                 Đã vào
                               </Button>
