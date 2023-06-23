@@ -10,7 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import Modal from "react-bootstrap/Modal";
-
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -70,10 +70,23 @@ function TableListAdmin() {
     const data = {
       STTGiayTo: STTGiayTo
     };
-    axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {console.log(res)});
+    axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {
+      if (res.status === 200) {
+        alert("Thêm thành công");
+      } else {
+        alert("Thêm thất bại");
+
+      }
+      console.log(res)});
+
     setshowModalAdd(false);
   };
-  
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+    return item.ThoiGian;
+  }
   return (
     <>
     <Modal
@@ -120,27 +133,31 @@ function TableListAdmin() {
                 <Col md="3">
                 <Row>
                 <div style={{ display: "flex", gap: "12px", alignItems:"center", marginTop:"20px" }}>
-                  <p style={{display:"inline-block", width:"220px"}}>Thời gian bắt đầu</p>
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian bắt đầu</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateBD}
                     onChange={handleChange}
+                    style={{width:"50%"}} 
                   />
                   
-                  <p style={{display:"inline-block", width:"220px"}}>Thời gian kết thúc</p>
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian kết thúc</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateKT}
                     onChange={handleChangeKT}
+                    style={{width:"50%"}}
                   />
-                   <button
+                   {/* <button
                   type="button"
                   class="btn btn-add-target  btn-table btn-left"
-                  style={{ width: "170px" }}
+                  style={{ width: "300px" }}
                   onClick={handleAddDSRV}
                 >
                   THÊM MỚI
-                </button>
+                </button> */}
                   </div>
 
                  
@@ -174,8 +191,8 @@ function TableListAdmin() {
                             <td>{item.STTGiayTo}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
-                            <td>{item.TG_Ra}</td>
-                            <td>{item.TG_Vao}</td>
+                            <td>{getThoiGian(item.TG_Ra)}</td>
+                            <td>{item.TG_Vao?getThoiGian(item.TG_Vao):"Chưa vào"}</td>
                             <td>{item.STTDaDuyet}</td>
                             <td>{item.SoVe}</td>
                             <td>{item.TenLoai}</td>

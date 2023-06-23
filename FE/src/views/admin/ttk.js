@@ -4,8 +4,8 @@ import { useEffect } from "react";
 import axiosClient from "service/axiosClient";
 import { useHistory } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
-
-
+import "../../assets/css/btn_vul.css";
+import "./style.css";
 
 // react-bootstrap components
 import {
@@ -29,9 +29,9 @@ function TableListAdmin() {
   const [personID, setPersonID] =useState()
   const [username, setUsername] = useState()
   const [roleID, setRoleID] = useState("1")
-  const [showModalAdd, setshowModalAdd] = useState(false);
-  const handleCloseAdd = () => setshowModalAdd(false);
-  const handleShowAdd = () => setshowModalAdd(true);
+  const [showAdd, setshowAdd] = useState(false);
+  const handleCloseAdd = () => setshowAdd(false);
+  const handleShowAdd = () => setshowAdd(true);
   async function getItem() {
     const res = await axiosClient.get("/Person/get-list-account/?page=1&size=12");
 
@@ -82,6 +82,19 @@ const parsedPersonID = parseInt(personID);
         return "Không xác định";
     }
   }
+  const handleAddTK = (e => {
+    console.log("thêm");
+    e.preventDefault();
+    getItem();
+    setshowAdd(true);
+  });
+  const handleAddTK1 = (e => {
+    console.log("thêm");
+    e.preventDefault();
+    getItem();
+    setshowAdd(true);
+  });
+  
   
 
   return (
@@ -134,15 +147,85 @@ const parsedPersonID = parseInt(personID);
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal
+        style={{ transform: "none" }}
+        show={showAdd}
+        onShow={handleShowAdd}
+        onHide={handleCloseAdd}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Thêm người dùng</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {/* <div className="form-group">
+              <label>Hình thức ra ngoài</label>
+              <div>
+                <select
+                  class="form-control name-domain"
+                  onChange={(event) => setHTRN(event.target.value)}
+                >
+                  {listHTRN.map((item) => {
+                    return <option value={item.STT}>{item.LOAI}</option>;
+                  })}
+                </select>
+              </div> */}
+            {/* </div> */}
+            <div class="form-group">
+              <label>Tên đăng nhập</label>
+              <input
+                className="form-control url"
+              />
+            </div>
+            <div class="form-group">
+              <label>Mật khẩu</label>
+              <input
+                type="password"
+                className="form-control url"
+              />
+            </div>
+            <div class="form-group">
+              <label>Nhập lại Mật khẩu</label>
+              <input
+                type="password"
+                className="form-control url"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Mã người dùng</label>
+              <input
+                className="form-control url"
+              />
+            </div>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={handleAddTK1}
+            className="btn-table btn-left"
+          >
+            Thêm
+          </Button>
+          <Button onClick={handleCloseAdd} variant="secondary" type="submit">
+            Đóng
+          </Button>
+        </Modal.Footer>
+      </Modal>
       <Container fluid>
         <Row>
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Card.Title as="h4">Danh sách người dùng</Card.Title>
-                <p className="card-category">
-                  <Button>Add new users</Button>
-                </p>
+                {/* <p className="card-category"> */}
+                  <Button
+                    type="button"
+                    onClick={handleAddTK}
+                    class="btn btn-add-target  btn-table btn-left"
+                  >Add new users</Button>
+                {/* </p> */}
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">
