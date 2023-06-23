@@ -28,7 +28,7 @@ function TableListAdmin() {
   const { id, setId } = useContext(GlobalState);
   const [maHV, setmaHV] = useState();
   const [STT, setSTT] = useState();
-  const [liDo, setLiDo] = useState();
+  const [ghiChu, setghiChu] = useState();
   const [maLoai, setMaLoai] = useState();
   const [soVe, setSoVe] = useState()
   const [listDSVP, setlistDSVP] = useState([]);
@@ -38,7 +38,9 @@ function TableListAdmin() {
   const handleShow = () => setShowModal(true);
   const [TGRa, setTGRa] = useState(new Date());
   const [TGVao, setTGVao] = useState(new Date());
-
+  const [listLVP, setlistLVP] = useState([]);
+  const [sttRN, setSTTRN] = useState()
+  const [loaiLVP, setLoaiLVP] = useState(1)
   const handleChange = (date) => {
     setSelectedDate(date);
   };
@@ -48,43 +50,39 @@ function TableListAdmin() {
   const handleTimeRa = (date) => {
     setTGRa(date);
   };
-
+  async function getDSVP() {
+    const day = selectedDate.getDate();
+    const month = selectedDate.getMonth() + 1;
+    const year = selectedDate.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    const res = await axiosClient.get(
+      "/VeBinh/get-list-loi-vi-pham-/?page=1&size=12"
+    );
+    console.log(res)
+    setlistDSVP((listDSVP) => [...res.data]);
+  }
   useEffect(() => {
-    async function getDSVP() {
-      const day = selectedDate.getDate();
-      const month = selectedDate.getMonth() + 1;
-      const year = selectedDate.getFullYear();
-      const dateString = `${day}-${month}-${year}`;
-      const res = await axiosClient.get(
-        "/VeBinh/get-list-loi-vi-pham-/?page=1&size=12"
-      );
-      console.log(res)
-      setlistDSVP((listDSVP) => [...res.data]);
-    }
+    
     getDSVP();
   }, [id, selectedDate]);
   function handleAddDSVP(){
+    getLVP()
     setShowModal(true);
   }
+  async function getLVP() {
+    const res = await axiosClient.get("VeBinh/get-list-loai-loi_vi_pham/");
+    setlistLVP((listLVP) => [...res.data]);
+  }
   function handleAddDSVP1(){
-    const ngayRa = TGRa.getDate();
-    const thangRa = TGRa.getMonth() + 1;
-    const namRa = TGRa.getFullYear();
-    const ngayVao = TGVao.getDate();
-    const thangVao = TGVao.getMonth() + 1;
-    const namVao = TGVao.getFullYear();
-    const timeRa = `${ngayRa}-${thangRa}-${namRa}`;
-    const timeVao = `${ngayVao}-${thangVao}-${namVao}`;
     const data ={
-      reason: liDo,
-      time_start: timeRa,
-      time_end: timeVao,
-      ma_HV: maHV
+      ma_loi_VP: loaiLVP,
+      stt_ra_ngoai: sttRN,
+      ghi_chu: ghiChu,
     }
-    axiosClient.post("/Person/post-them-hoc-vien-cam-trai/", data).then((res)=>{
+    axiosClient.post("/VeBinh/post-loi-vi-pham/", data).then((res)=>{
       if (res.status === 200) {
         alert("Thêm thành công");
-        getDSDK()
+        getDSVP()
       } else {
         alert("Đã xảy ra lỗi")
       }
@@ -105,36 +103,36 @@ function TableListAdmin() {
         <Modal.Body>
           <Form>
 
+          <div className="form-group">
+              <label>Lỗi vi phạm</label>
+              <div>
+                <select
+                  class="form-control name-domain"
+                  onChange={(event) => setHTRN(event.target.value)}
+                >
+                  {listLVP.map((item) => {
+                    return (
+                      // console.log(item.STT_HTRN),
+                      <option value={item.MaLoiVP}>{item.TenLoi}</option>
+                    );
+                  })}
+                </select>
+              </div>
+            </div>
             <div class="form-group">
-              <label>Lí do</label>
+              <label>Số thứ tự ra ngoài</label>
               <input
                 className="form-control url"
-                value={liDo}
-                onChange={(e) => setLiDo(e.target.value)}
+                value={sttRN}
+                onChange={(e) => setSTTRN(e.target.value)}
               />
             </div>
             <div class="form-group">
-              <label>Thời gian bắt đầu</label>
-                <DatePicker
-                  dateFormat="dd/MM/yyyy"
-                  selected={TGRa}
-                  onChange={handleTimeRa}
-                />
-            </div>
-            <div class="form-group">
-              <label>Thời gian kết thúc</label>
-                <DatePicker
-                  dateFormat="dd/MM/yyyy"
-                  selected={TGVao}
-                  onChange={handleTimeVao}
-                />
-            </div>
-            <div class="form-group">
-              <label>Mã học viên</label>
+              <label>Ghi chú</label>
               <input
                 className="form-control url"
-                value={maHV}
-                onChange={(e) => setLiDo(e.target.value)}
+                value={ghiChu}
+                onChange={(e) => setghiChu(e.target.value)}
               />
             </div>
 
@@ -203,7 +201,7 @@ function TableListAdmin() {
                             <td>{item.TenTD}</td>
                             <td>{item.TenDD}</td>
                             <td>{item.TenLop}</td>
-                            <td>{item.TenLoi}</td>
+                            <td>{item.GhiChu}</td>
                             {/* <td>
                               <Button
                                 type="button"

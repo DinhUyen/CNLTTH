@@ -44,3 +44,9 @@ h1 {
     margin-left: -10px;
     margin-top: -8px;
 }
+.chonNgay{
+    width: 40% !important;
+}
+.react-datepicker__input-container {
+    width: 80% !important;
+}

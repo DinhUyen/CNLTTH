@@ -118,29 +118,38 @@ function TableListAdmin() {
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Col md="3">
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Thời gian bắt đầu</p>
+                <Row>
+                <div style={{ display: "flex", gap: "12px", alignItems:"center", marginTop:"20px" }}>
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian bắt đầu</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateBD}
                     onChange={handleChange}
+                    style={{width:"50%"}} 
                   />
-                  </div>
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Thời gian kết thúc</p>
+                  
+                  <p style={{display:"inline-block", width:"400px"}}>Thời gian kết thúc</p>
                   <DatePicker
+                    className="chonNgay"
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDateKT}
                     onChange={handleChangeKT}
+                    style={{width:"50%"}}
                   />
-                  </div>
-                  <button
+                   <button
                   type="button"
                   class="btn btn-add-target  btn-table btn-left"
+                  style={{ width: "300px" }}
                   onClick={handleAddDSRV}
                 >
                   THÊM MỚI
                 </button>
+                  </div>
+
+                 
+                 </Row>
+                 
                   
                 </Col>
               </Card.Header>

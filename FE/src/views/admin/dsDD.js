@@ -32,7 +32,7 @@ function TableListAdmin() {
   const [maHV, setmaHV] = useState();
   const [STT, setSTT] = useState();
   const [xetDuyet, setXetDuyet] = useState();
-  const [maLoai, setMaLoai] = useState();
+  const [maLoai, setMaLoai] = useState(1);
   const [soVe, setSoVe] = useState()
   const [listDSDD, setlistDSDD] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -84,7 +84,6 @@ function TableListAdmin() {
     axiosClient.post("/Person/post-tao-giay-to-RN-hoc-vien/", data).then((res)=>{
       if (res.status === 200) {
         alert("Thêm thành công");
-        getDSDK()
       } else {
         alert("Đã xảy ra lỗi")
       }

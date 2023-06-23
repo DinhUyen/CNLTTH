@@ -809,7 +809,10 @@ class PersonViewSet(viewsets.ViewSet):
         time_start = (week_start - timedelta(days=1)).strftime("%Y-%m-%d")
         time_end = (week_end + timedelta(days=1)).strftime("%Y-%m-%d")
         time_xetduyet = datetime.now(pytz.timezone('Asia/Ho_Chi_Minh')).strftime("%Y-%m-%d %H:%M:%S")
-        print(time_xetduyet)
+        print("time_xetduyet : ", time_xetduyet)
+        print("time_start : ", time_start)
+        print("time_end : ", time_end)
+
         try:
             query_string = f"SELECT DSDANGKY.STT, HinhThucRN.Loai, DSDANGKY.DiaDiem, DSDANGKY.ThoiGianDi, DSDANGKY.ThoiGianVe,HOCVIEN.maHV, PERSON.HoTen, DSDANGKY.TRANGTHAIXD FROM DSDANGKY \
                             LEFT JOIN HOCVIEN ON DSDANGKY.MAHV = HOCVIEN.MAHV \
@@ -819,6 +822,7 @@ class PersonViewSet(viewsets.ViewSet):
                             (ThoiGianDi BETWEEN '{time_start}'AND '{time_end}')  AND\
                             '{time_xetduyet}' < ThoiGianDi AND\
                             TRANGTHAIXD < HinhThucRN.QUYEN \
+                            AND HinhThucRN.QUYEN = '{permission}' \
                             AND DSDANGKY.MAHV IN (SELECT MAHV FROM HOCVIEN,PERSON,DONVI WHERE HOCVIEN.personID = PERSON.PersonID AND DONVI.DonViID=PERSON.DonViID\
                             AND (DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s))"
             obj = generics_cursor.getDictFromQuery(
@@ -1309,6 +1313,38 @@ class VeBinhViewSet(viewsets.ViewSet):
             STTGiayTo = dataDict.get("STTGiayTo")
             query_string = f'UPDATE VAORACONG SET TG_Vao = %s WHERE STTGiayTo= %s'
             param = [time_end,STTGiayTo]
+            with connection.cursor() as cursor:
+                cursor.execute(query_string, param)
+                rows_affected = cursor.rowcount
+                print(rows_affected)
+            if rows_affected == 0:
+                return Response(data={"status": False}, status=status.HTTP_200_OK)
+        except:
+            return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(data={"status": True}, status=status.HTTP_200_OK)
+    
+    @swagger_auto_schema(method='post', manual_parameters=[], request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT, required=None,
+        properties={
+            'ma_loi_VP': openapi.Schema(type=openapi.TYPE_STRING, description="Mã lỗi vi phạm"),
+            'stt_ra_ngoai': openapi.Schema(type=openapi.TYPE_INTEGER,description="Số thứ tự giấy tờ ra ngoài", default=23),
+            'ghi_chu': openapi.Schema(type=openapi.TYPE_STRING,description="Ghi Chú")
+        }
+    ), responses=post_list_person_response)
+    @action(methods=['POST'], detail=False, url_path='post-loi-vi-pham')
+    def post_loi_vi_pham(self, request):
+        """
+        API này dùng để thêm lỗi vi phạm của học viên khi ra vào
+        """
+        dataDict = request.data
+        ma_loi_VP = dataDict.get("ma_loi_VP")       
+        stt_ra_ngoai = dataDict.get("stt_ra_ngoai")       
+        ghi_chu = dataDict.get("ghi_chu")  
+        try:
+            # time_start = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            # STTGiayTo = dataDict.get("STTGiayTo")
+            query_string = f'INSERT INTO HV_VIPHAM("MaLoiVP","STTRaNgoai","GhiChu") VALUES (%s,%s,%s);'
+            param = [ma_loi_VP,stt_ra_ngoai,ghi_chu]
             with connection.cursor() as cursor:
                 cursor.execute(query_string, param)
                 rows_affected = cursor.rowcount
