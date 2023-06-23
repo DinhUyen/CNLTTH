@@ -203,9 +203,9 @@ function TableListAdmin() {
                               >
                                 Thêm GTRN
                               </Button> */}
-                              <p onClick={(e) => handleAddGTRN(item.STT)} className="nc-icon nc-simple-add text-primary f-15 m-r-5"
+                              {/* <p onClick={(e) => handleAddGTRN(item.STT)} className="nc-icon nc-simple-add text-primary f-15 m-r-5"
                                title="Thêm GTRN"
-                               style={{ cursor: 'pointer' }}></p>
+                               style={{ cursor: 'pointer' }}></p> */}
                               </td>
                               
                               

@@ -129,6 +129,9 @@ class AddressViewSet(viewsets.ViewSet):
                         name_lop= self.getNameDonVi(lop)
                         outer_dict["data"].append({"code":lop, "name":name_lop,})
                 result.append(outer_dict)
+        elif isinstance(output, str):
+            name_lop= self.getNameDonVi(output)
+            result.append({"code":output, "name":name_lop,})
         else:
             for lop in output:
                 name_lop= self.getNameDonVi(lop)

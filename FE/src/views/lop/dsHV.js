@@ -4,13 +4,14 @@ import { useEffect } from "react";
 import axiosClient from "service/axiosClient";
 import { useHistory } from "react-router-dom";
 import { GlobalState } from "layouts/Slidenav";
-import { Pagination } from "@mui/material";
 import Modal from "react-bootstrap/Modal";
 import "../../assets/css/btn_vul.css";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import "react-confirm-alert/src/react-confirm-alert.css";
 import { Link } from "react-router-dom";
-
+import moment from "moment";
+import "./style.css";
 // react-bootstrap components
 import {
   Badge,
@@ -23,10 +24,11 @@ import {
   Row,
   Col,
   Form,
+  Pagination,
 } from "react-bootstrap";
 
 function TableListAdmin() {
-  const { id, setId,MaDV } = useContext(GlobalState);
+  const { id, setId } = useContext(GlobalState);
   const [maHV, setmaHV] = useState();
   const [hoTen, setHoTen] = useState();
   const [loaiHV, setLoaiHV] = useState();
@@ -36,7 +38,7 @@ function TableListAdmin() {
   const [daiDoi, setDaiDoi] = useState();
   const [lop, setLop] = useState();
   const [queQuan, setQueQuan] = useState();
-
+  const [listHTRN, setlistHTRN] = useState([]);
   const [HTRN, setHTRN] = useState(0);
   const [DiaDiem, setDiaDiem] = useState();
   const [TGRa, setTGRa] = useState(new Date());
@@ -48,6 +50,10 @@ function TableListAdmin() {
   const handleShow = () => setShow(true);
   const handleCloseAdd = () => setShowAdd(false);
   const handleShowAdd = () => setShowAdd(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [typeSearch, setTypeSearch] = useState("all");
+  const [searchValue, setSearchValue] = useState("");
   const [hm, setHm] = useState({
     gioRa: "",
     gioVao: "",
@@ -62,20 +68,45 @@ function TableListAdmin() {
   };
   useEffect(() => {
     async function getItem() {
-      const res = await axiosClient.get(
-        `/Person/get-list-hoc-vien/?page=0&size=12&donViID=${id}`
-      );
-      console.log(res);
-      setlistHV((listHV) => [...res.data]);
+      // const res = await axiosClient.get(
+      //   `/Person/get-list-hoc-vien/?donViID=${id}`
+      // );
+      // console.log(res);
+      // setlistHV((listHV) => [...res.data]);
+        const params = typeSearch === "all" ? {} :typeSearch ==="name" ?{
+          nameHV:searchValue
+        }:{
+          maHV:searchValue
+        };
+        let url =typeSearch ==="all" ? `/Person/get-list-hoc-vien/?donViID=${id}` :typeSearch==="name"?`/Person/get-info-hoc-vien-by-name/?donViID=${id}`:`/Person/get-info-hoc-vien-by-id/?donViID=${id}`;
+       
+        const res = await axiosClient.get(
+          `${url}`,{
+            params:params
+          }
+        );
+         console.log(res); 
+         setlistHV(res.data)
     }
     getItem();
-  }, [id]);
+  }, [id, typeSearch]);
+
+  async function getHTRN() {
+    const res = await axiosClient.get("/Person/get-list-hinh-thuc-ra-ngoai");
+    setlistHTRN((listHTRN) => [...res.data]);
+  }
 
   const handleAddDSDK = (e, maHV) => {
     console.log("thêm");
     e.preventDefault();
+    getHTRN();
     setmaHV(maHV);
     setShowAdd(true);
+  };
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
   };
   const handleAddDSDK1 = (e) => {
     e.preventDefault();
@@ -98,9 +129,9 @@ function TableListAdmin() {
       const namVao = TGVao.getFullYear();
       const timeRa = `${namRa}-${thangRa}-${ngayRa} ${hm.gioRa}:${hm.phutRa}`;
       const timeVao = `${namVao}-${thangVao}-${ngayVao} ${hm.gioVao}:${hm.phutVao}`;
- 
+
       const data = {
-        hinh_thuc_RN: parseInt(HTRN, 10),
+        hinh_thuc_RN: HTRN,
         dia_diem: DiaDiem,
         time_start: timeRa,
         time_end: timeVao,
@@ -139,6 +170,26 @@ function TableListAdmin() {
     setLop(lop);
     setQueQuan(queQuan);
   }
+  function getThoiGian(ThoiGian) {
+    const item = { ThoiGian: ThoiGian };
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian = momentObj.format("DD-MM-YYYY");
+    return item.ThoiGian;
+  }
+  console.log(typeSearch);
+  const handleSearchOptionChange = (e) => {
+    const selectedOption = e.target.value;
+    setTypeSearch(selectedOption);
+    // // setSearchValue(""); // Clear the search input when changing search option
+    // console.log(selectedOption);
+    // console.log(searchValue);
+
+    // // if (selectedOption === "name") {
+    // //   setSearchName(searchValue);
+    // // } else if (selectedOption === "code") {
+    // //   setSearchCode(searchValue);
+    // // }
+  };
   return (
     <>
       <Modal
@@ -159,8 +210,9 @@ function TableListAdmin() {
                   class="form-control name-domain"
                   onChange={(event) => setHTRN(event.target.value)}
                 >
-                  <option value="0">Tranh thủ</option>
-                  <option value="1">Ra ngoài</option>
+                  {listHTRN.map((item) => {
+                    return <option value={item.STT}>{item.LOAI}</option>;
+                  })}
                 </select>
               </div>
             </div>
@@ -347,25 +399,47 @@ function TableListAdmin() {
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
-                <Col>
-                <div class="form-group">
-              <label>Tìm kiếm theo tên</label>
-              <input
-                className="form-control url"
-                value=""
-                // onChange={(e) => setDiaDiem(e.target.value)}
-              />
-            </div>
-                </Col>
-                <Col>
-                <div class="form-group">
-              <label>Tìm kiếm theo id</label>
-              <input
-                className="form-control url"
-                value=""
-                // onChange={(e) => setDiaDiem(e.target.value)}
-              />
-            </div>
+                <Col md="12">
+                  <Row>
+                    <div style={{ display: "flex", gap: 12 }}>
+                      {/* <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p> */}
+                      <input
+                        type="text"
+                        // id="searchInput"
+                        style={{ width: "200px" }}
+                        // placeholder="Nhập mã học viên hoặc tên học viên"
+                        onChange={(e) => setSearchValue(e.target.value)}
+                        value={searchValue}
+                      />
+                      <div style={{ gap: "40px", display: "flex" }}>
+                        <label className="search">
+                          <input
+                            style={{ marginRight: "5px" }}
+                            type="radio"
+                            id="searchByName"
+                            name="searchOption"
+                            value="name"
+                            // checked={searchName !== "all"}
+                            onChange={handleSearchOptionChange}
+                          />
+                          Tìm kiếm theo tên học viên
+                        </label>
+
+                        <label className="search">
+                          <input
+                            style={{ marginRight: "5px" }}
+                            type="radio"
+                            id="searchByCode"
+                            name="searchOption"
+                            value="code"
+                            // checked={searchCode !== "all"}
+                            onChange={handleSearchOptionChange}
+                          />
+                          Tìm kiếm theo mã học viên
+                        </label>
+                      </div>
+                    </div>
+                  </Row>
                 </Col>
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
@@ -383,29 +457,34 @@ function TableListAdmin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {listHV &&
-                      listHV.map((item) => {
-                        return (
-                          <tr key={item.MaHV}>
-                            <td>{item.MaHV}</td>
-                            {/* <td>{item.TENLOAI}</td> */}
-                            {/* <td>{item.PERSONID}</td> */}
-                            <td>{item.HoTen}</td>
-                            <td>{item.NgSinh}</td>
-                            {/* <td>{item.CapBac}</td> */}
-                            {/* <td>{item.ChucVu}</td> */}
-                            <td>{item.TenDD}</td>
-                            <td>{item.TenLop}</td>
-                            <td>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
+                    {paginate(listHV).map((item, index) => {
+                      return (
+                        <tr key={index}>
+                          <td>{item.MaHV}</td>
+                          {/* <td>{item.TENLOAI}</td> */}
+                          {/* <td>{item.PERSONID}</td> */}
+                          <td>{item.HoTen}</td>
+                          <td>{getThoiGian(item.NgSinh)}</td>
+                          {/* <td>{item.CapBac}</td> */}
+                          {/* <td>{item.ChucVu}</td> */}
+                          <td>{item.TenDD}</td>
+                          <td>{item.TenLop}</td>
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                gap: 12,
+                                alignItems: "center",
+                                flexWrap: "nowrap",
+                              }}
+                            >
+                              <p
                                 onClick={(e) =>
                                   getTTHV(
                                     item.MaHV,
                                     item.HoTen,
                                     item.TENLOAI,
-                                    item.NgSinh,
+                                    getThoiGian(item.NgSinh),
                                     item.CapBac,
                                     item.ChucVu,
                                     item.TenDD,
@@ -413,26 +492,34 @@ function TableListAdmin() {
                                     item.QueQuan
                                   )
                                 }
-                              >
-                                Chi tiết
-                              </Button>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
+                                className="nc-icon nc-badge text-success f-15 m-r-5"
+                                title="Thông tin chi tiết"
+                                style={{
+                                  cursor: "pointer",
+                                  fontWeight: "bold",
+                                }}
+                              ></p>
+                              <Link
+                                title="Kết quả rèn luyện"
+                                to={`/admin/kqrl?maHV=${item.MaHV}`}
+                                className="nc-icon nc-layers-3 text-primary f-15 m-r-5"
+                                style={{
+                                  cursor: "pointer",
+                                  fontWeight: "bold",
+                                }}
+                              ></Link>
+                              <p
                                 onClick={(e) => handleAddDSDK(e, item.MaHV)}
-                              >
-                                Thêm DSDK
-                              </Button>
-                              <Link to={`/admin/kqrl?maHV=${item.MaHV}`}> 
-                              <Button type="button" 
-                              className="btn-table btn-left" 
-                              > 
-                              KQRL
-                              </Button>
-                            </Link>
-                             
-                            </td>
-                            {/* <td>
+                                className="nc-icon nc-simple-add text-warning f-15 m-r-5"
+                                title="Đăng ký ra ngoài"
+                                style={{
+                                  cursor: "pointer",
+                                  fontWeight: "bold",
+                                }}
+                              ></p>
+                            </div>
+                          </td>
+                          {/* <td>
                               <Button type="button" onClick={()=>goDetail()}>
                                 Detail
                               </Button>
@@ -441,16 +528,64 @@ function TableListAdmin() {
                               </Button>
                               <Button>Update</Button>
                             </td> */}
-                          </tr>
-                        );
-                      })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                  <Pagination>
+                    {currentPage > 1 && (
+                      <Pagination.Prev
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                        className="prev"
+                      />
+                    )}
+                    {currentPage > 2 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(Math.floor(currentPage / 2))
+                        }
+                      />
+                    )}
+                    {[...Array(Math.ceil(listHV.length / pageSize)).keys()].map(
+                      (number) =>
+                        Math.abs(currentPage - (number + 1)) <= 2 && (
+                          <Pagination.Item
+                            key={number}
+                            active={currentPage === number + 1}
+                            onClick={() => setCurrentPage(number + 1)}
+                          >
+                            {number + 1}
+                          </Pagination.Item>
+                        )
+                    )}
+                    {currentPage < Math.ceil(listHV.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listHV.length / pageSize)) /
+                                2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                    {currentPage < Math.ceil(listHV.length / pageSize) && (
+                      <Pagination.Next
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                        className="next"
+                      />
+                    )}
+                  </Pagination>
+                </div>
               </Card.Body>
             </Card>
           </Col>
         </Row>
-        <Pagination count={10} variant="outlined" />
+        {/* <Pagination count={10} variant="outlined" /> */}
       </Container>
     </>
   );

@@ -12,6 +12,7 @@ import Modal from "react-bootstrap/Modal";
 import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -24,6 +25,7 @@ import {
   Row,
   Col,
   Form,
+  Pagination
 } from "react-bootstrap";
 
 function TableListAdmin() {
@@ -35,11 +37,14 @@ function TableListAdmin() {
   const [TGRa, setTGRa] = useState(new Date());
   const [TGVao, setTGVao] = useState(new Date());
   const [listDSDK, setlistDSDK] = useState([]);
+  const [listHTRN, setlistHTRN] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const handleClose = () => setShowModal(false);
   const handleShow = () => setShowModal(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [hm, setHm] = useState({
     gioRa: "",
     gioVao: "",
@@ -56,19 +61,24 @@ function TableListAdmin() {
   const handleTimeRa = (date) => {
     setTGRa(date);
   };
-  useEffect(() => {
-    async function getDSDK() {
-      const day = selectedDate.getDate();
-      const month = selectedDate.getMonth() + 1;
-      const year = selectedDate.getFullYear();
-      const dateString = `${day}-${month}-${year}`;
-      const res = await axiosClient.get(
-        `/Person/get-list-dang-ky/?donViID=${id}&timeBetween=${dateString}`
-      );
-      setlistDSDK((listDSDK) => [...res.data]);
-    }
+  async function getDSDK() {
+    const day = selectedDate.getDate();
+    const month = selectedDate.getMonth() + 1;
+    const year = selectedDate.getFullYear();
+    const dateString = `${day}-${month}-${year}`;
+    const res = await axiosClient.get(
+      `/Person/get-list-dang-ky/?donViID=${id}&timeBetween=${dateString}`
+    );
+    setlistDSDK((listDSDK) => [...res.data]);
+  }
+  useEffect(() => {    
     getDSDK();
   }, [id, selectedDate]);
+
+  async function getHTRN() {
+    const res = await axiosClient.get("/Person/get-list-hinh-thuc-ra-ngoai");
+    setlistHTRN((listHTRN) => [...res.data]);
+  }
   function getMaHVShow(maHv) {
     setShow(true);
     setmaHV(maHV);
@@ -76,11 +86,12 @@ function TableListAdmin() {
 
  async function xoaDSDK(maDK){
   const res = await axiosClient.delete(`/Person/delete-dang-ky/?sttDangKy=${maDK}`)
-  if (res.status === 200) {
+  // console.log(res.data.status)
+  if (res.data.status === true) {
     alert("Xóa thành công");
     getDSDK()
   } else {
-    alert("Đã xảy ra lỗi")
+    alert("Chỉ được xóa khi chưa xét duyệt")
   }
  }
  const handleDelete = (maDK) => {
@@ -99,16 +110,20 @@ function TableListAdmin() {
     ]
   });
 };
+function getThoiGian(ThoiGian){
+  const item = { ThoiGian: ThoiGian};
+  const momentObj = moment(item.ThoiGian);
+  item.ThoiGian= momentObj.format("HH:mm DD-MM-YYYY");
+  return item.ThoiGian;
+}
   function getTrangThai(TRANGTHAIXD) {
     switch (TRANGTHAIXD) {
-      case 0:
-        return "Chưa xét duyệt";
       case 1:
-        return "Đại đội đã xét duyệt";
+        return "Chưa xét duyệt";
       case 2:
-        return "Tiểu đoàn đã xét duyệt";
+        return "Đại đội đã xét duyệt";
       case 3:
-      case 4:
+        return "Tiểu đoàn đã xét duyệt";
       case 5:
         return "Học viện đã xét duyệt";
       case -1:
@@ -122,27 +137,19 @@ function TableListAdmin() {
 function handleEditDSDK (
   STT,
   HTRN,
-  DiaDiem,
-  // TGRa,
-  // TGVao,
-  // gioRa,
-  // gioVao,
-  // phutRa,
-  // phutVao
+  DiaDiem
 ){
+    getHTRN() 
+    console.log(listHTRN)
+    // console.log(HTRN)
     setShowModal(true);
     setSTT(STT)
     setHTRN(HTRN);
     setDiaDiem(DiaDiem);
-    // setTGRa(TGRa);
-    // setTGVao(TGVao);
-    // setHm({ ...hm, gioRa: gioRa});
-    // setHm({ ...hm, phutRa: phutRa});
-    // setHm({ ...hm, gioVao: gioVao});
-    // setHm({ ...hm, phutVao: phutVao});
   };
   const handleEditDSDK1 = (e) => {
     e.preventDefault();
+    // console.log(HTRN)
     if (
       TGRa === "" ||
       TGVao === "" ||
@@ -154,8 +161,7 @@ function handleEditDSDK (
     ) {
       alert("Nhập thiếu nội dung");
     } else{
-      console.log(HTRN)
-      const ngayRa = TGRa.getDate();
+    const ngayRa = TGRa.getDate();
     const thangRa = TGRa.getMonth() + 1;
     const namRa = TGRa.getFullYear();
     const ngayVao = TGVao.getDate();
@@ -166,21 +172,26 @@ function handleEditDSDK (
     const data = {
       STT: STT,
       dia_diem: DiaDiem,
-      hinh_thuc_RN: parseInt(HTRN, 10),
+      hinh_thuc_RN: HTRN,
       time_start: timeRa,
       time_end: timeVao,
     };
-    axiosClient.put("/Person/post-thay_doi-thong-tin-dang-ky/", data).then((res) => {
-      if (res.status === 200) {
+    axiosClient.put("/Person/put-thay_doi-thong-tin-dang-ky/", data).then((res) => {
+      if (res.data.status === true) {
         alert("Chỉnh sửa thành công");
         getDSDK()
       } else {
-        alert("Đã xảy ra lỗi")
+        alert("Chỉ được thay đổi khi chưa xét duyệt!")
       }
     });
     setShowModal(false);
     }
     
+  };
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
   };
 
   return (
@@ -203,8 +214,12 @@ function handleEditDSDK (
                   class="form-control name-domain"
                   onChange={(event) => setHTRN(event.target.value)}
                 >
-                  <option value="0">Tranh thủ</option>
-                  <option value="1">Ra ngoài</option>
+                  {listHTRN.map((item) => {
+                    return (
+                      // console.log(item.STT_HTRN),
+                      <option value={item.STT}>{item.LOAI}</option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -270,14 +285,16 @@ function handleEditDSDK (
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
                 <Col md="3">
-                  <div style={{ display: "flex", gap: 12 }}>
-                  <p>Ngày trong tuần</p>
+                 <Row>
+                 <div style={{ display: "flex", gap: 12 }}>
+                  <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p>
                   <DatePicker
                     dateFormat="dd/MM/yyyy"
                     selected={selectedDate}
                     onChange={handleChange}
                   />
                   </div>
+                 </Row>
                   
                 </Col>
               </Card.Header>
@@ -297,47 +314,80 @@ function handleEditDSDK (
                     </tr>
                   </thead>
                   <tbody>
-                    {listDSDK &&
-                      listDSDK.map((item) => {
+                  {paginate(listDSDK).map((item) => {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
-                            <td>{item.HinhThucRN}</td>
+                            <td>{item.LOAI}</td>
                             <td>{item.DiaDiem}</td>
-                            <td>{item.ThoiGianDi}</td>
-                            <td>{item.ThoiGianVe}</td>
+                            <td>{getThoiGian(item.ThoiGianDi)}</td>
+                            <td>{getThoiGian(item.ThoiGianVe)}</td>
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getTrangThai(item.TRANGTHAIXD)}</td>
-                            <td>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e)=>
-                                   handleEditDSDK(
+                            <td>                            
+                              <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
+                              <p onClick={(e) =>  handleEditDSDK(
                                     item.STT,
-                                    (item.HinhThucRN==="Tranh thủ"?0:1),
+                                    item.STT_HTRN,
                                     item.DiaDiem
-                                    // item.TGRa,
-                                    // item.TGVao,
+                                   )} className="nc-icon nc-notes text-primary f-15 m-r-5"
+                               title="Chỉnh sửa"
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
 
-                                   )}
-                              >
-                                Chỉnh sửa
-                              </Button>
-                              <Button
-                                type="button"
-                                className="btn-table btn-left"
-                                onClick={(e) => handleDelete(item.STT)}
-                              >
-                                Xóa
-                              </Button>
+                                <p onClick={(e) => handleDelete(item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                                title="Xóa"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                              </div>
+                              
                             </td>
                           </tr>
                         );
                       })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                <Pagination>
+                  {currentPage > 1 && (
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} className="prev"/>
+                  )}
+                  {currentPage > 2 && (
+                    <Pagination.Ellipsis
+                      onClick={() => setCurrentPage(Math.floor(currentPage / 2))}
+                    />
+                  )}
+                  {[...Array(Math.ceil(listDSDK.length / pageSize)).keys()].map(
+                    (number) =>
+                      Math.abs(currentPage - (number + 1)) <= 2 && (
+                        <Pagination.Item
+                          key={number}
+                          active={currentPage === number + 1}
+                          onClick={() => setCurrentPage(number + 1)}
+                        >
+                          {number + 1}
+                        </Pagination.Item>
+                      )
+                  )}
+                  {currentPage <
+                    Math.ceil(listDSDK.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listDSDK.length / pageSize)) /
+                              2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  {currentPage <
+                    Math.ceil(listDSDK.length / pageSize) && (
+                      <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} className="next"/>
+                    )}
+                </Pagination>
+              </div>
               </Card.Body>
             </Card>
           </Col>
