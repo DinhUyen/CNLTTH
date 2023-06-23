@@ -11,7 +11,13 @@ from Common import generics_cursor, custom_permission
 from Common.generics import *
 from datetime import datetime, timedelta
 import pytz
+import requests
 
+def send_telegram_message(message="",token="5843940176:AAEac9RIcznQkzV1zmwaSQxZCmc3wgnBhRQ", chat_id='@ThongBaoViPham'):
+    message = message.replace(" ", "%20")
+    url = f'https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={message}'
+    response = requests.get(url)
+    return response
 
 class PersonPermission(custom_permission.CustomPermissions):
     def __init__(self):
@@ -1340,6 +1346,7 @@ class VeBinhViewSet(viewsets.ViewSet):
         ma_loi_VP = dataDict.get("ma_loi_VP")       
         stt_ra_ngoai = dataDict.get("stt_ra_ngoai")       
         ghi_chu = dataDict.get("ghi_chu")  
+
         try:
             # time_start = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             # STTGiayTo = dataDict.get("STTGiayTo")
@@ -1353,6 +1360,32 @@ class VeBinhViewSet(viewsets.ViewSet):
                 return Response(data={"status": False}, status=status.HTTP_200_OK)
         except:
             return Response(data={}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        print(Response(data={"status": True}, status=status.HTTP_200_OK))
+        query_string = f'SELECT HV_VIPHAM.STT, HV_VIPHAM.STTRaNgoai, HOCVIEN.MaHV, Person.HoTen, LOP.TenLop, DAIDOI.TENDD, HV_VIPHAM.GhiChu, LOIVIPHAM.TenLoi FROM HV_VIPHAM \
+                            LEFT JOIN LOIVIPHAM ON HV_VIPHAM.MaLoiVP = LOIVIPHAM.MaLoiVP \
+                            LEFT JOIN VAORACONG ON VAORACONG.STTRaNgoai = HV_VIPHAM.STTRaNgoai \
+                            LEFT JOIN HV_GIAYTORN ON VAORACONG.STTGiayTo = HV_GIAYTORN.STTGiayTo \
+                            LEFT JOIN GIAYTORN ON HV_GIAYTORN.MaLoai = GIAYTORN.MaLoai \
+                            LEFT JOIN DSDANGKY ON HV_VIPHAM.STTRaNgoai = DSDANGKY.STT \
+                            LEFT JOIN HOCVIEN ON DSDANGKY.MaHV = HOCVIEN.MaHV \
+                            LEFT JOIN PERSON ON PERSON.PersonID = HOCVIEN.PERSONID \
+                            LEFT JOIN DONVI ON DONVI.DonViID = PERSON.DonViID \
+                            LEFT JOIN TIEUDOAN ON TIEUDOAN.MaTD = DONVI.MaTieuDoan \
+                            LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
+                            LEFT JOIN LOP ON LOP.MaLop = DONVI.MaLop \
+                            WHERE HV_VIPHAM.STTRaNgoai ="{stt_ra_ngoai}"\
+                            ORDER BY HV_VIPHAM.STT DESC LIMIT 1'
+        with connection.cursor() as cursor:
+            cursor.execute(query_string)
+            result = cursor.fetchall()
+        row = result[0]
+        ma_hoc_vien = row[2]
+        ten_hoc_vien = row[3]
+        ten_lop = row[4]  
+        ten_dai_doi = row[5]
+        loiVp = row[7]
+        send_telegram_message(f"Đã thêm lỗi vi phạm '{loiVp}' cho học viên {ma_hoc_vien} - {ten_hoc_vien}, {ten_lop}, {ten_dai_doi} có số thứ tự ra ngoài {stt_ra_ngoai}")         
+
         return Response(data={"status": True}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(method='get', manual_parameters=[sw_page,sw_size,sw_DonViID], responses=get_list_person_response)
