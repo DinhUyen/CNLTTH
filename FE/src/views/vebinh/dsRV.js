@@ -184,7 +184,7 @@ function TableListAdmin() {
                             <td>{item.MaHV}</td>
                             <td>{item.HoTen}</td>
                             <td>{getThoiGian(item.TG_Ra)}</td>
-                            <td>{getThoiGian(item.TG_Vao)}</td>
+                            <td>{item.TG_Vao?getThoiGian(item.TG_Vao):"Chưa vào"}</td>
                             <td>{item.STTDaDuyet}</td>
                             <td>{item.SoVe}</td>
                             <td>{item.TenLoai}</td>

@@ -199,7 +199,7 @@ function TableListAdmin() {
                             <td>{item.TenLop}</td>
                             <td>{item.TenLoi}</td>
                             <td>
-                              <Button
+                              {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e) => 
@@ -208,7 +208,8 @@ function TableListAdmin() {
                                   )}
                               >
                                 Thêm QDCT
-                              </Button></td>
+                              </Button> */}
+                              </td>
                           </tr>
                         );
                       })}

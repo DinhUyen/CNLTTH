@@ -10,6 +10,7 @@ import "./style.css";
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import Modal from "react-bootstrap/Modal";
+import moment from "moment";
 // react-bootstrap components
 import {
   Badge,
@@ -22,6 +23,7 @@ import {
   Row,
   Col,
   Form,
+  Pagination
 } from "react-bootstrap";
 
 function TableListAdmin() {
@@ -33,6 +35,8 @@ function TableListAdmin() {
     const [TGKT, setTGKT] = useState(new Date());
     const [listDSCT, setlistDSCT] = useState([]);
     const [selectedDate, setSelectedDate] = useState(new Date());
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
     const [show, setShow] = useState(false);
     const [showModalAdd, setshowModalAdd] = useState(false);
     const handleCloseAdd = () => setshowModalAdd(false);
@@ -49,8 +53,6 @@ function TableListAdmin() {
     const handleTimeKT = (date) => {
       setTGKT(date);
     };
-
-  useEffect(() => {
     async function getDSCT() {
       const day = selectedDate.getDate();
       const month = selectedDate.getMonth() + 1;
@@ -61,6 +63,8 @@ function TableListAdmin() {
       console.log(res)
       setlistDSCT((listDSCT) => [...res.data]);
     }
+  useEffect(() => {
+   
     getDSCT();
   }, [id, selectedDate]);
   const handleAddDSCT = (e) => {
@@ -108,6 +112,12 @@ function TableListAdmin() {
       }
     
   };
+  function getThoiGian(ThoiGian){
+    const item = { ThoiGian: ThoiGian};
+    const momentObj = moment(item.ThoiGian);
+    item.ThoiGian= momentObj.format("DD-MM-YYYY");
+    return item.ThoiGian;
+  }
 
 function handleEditDSCT (STT, MaHV, liDo) {
     console.log("thêm");
@@ -142,7 +152,7 @@ function handleEditDSCT (STT, MaHV, liDo) {
       reason: liDo,
       time_start: timeBD,
       time_end: timeKT,
-      ma_HV: maHV,
+      STT: STT,
     };
     axiosClient.put("/Person/put-thay-doi-thong-tin-cam-trai/", data).then((res) => {
         if (res.status === 200) {
@@ -156,7 +166,11 @@ function handleEditDSCT (STT, MaHV, liDo) {
       }
     
   };
-
+  const paginate = (targets) => {
+    const startIndex = (currentPage - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    return targets.slice(startIndex, endIndex);
+  };
 
 
   return (
@@ -294,8 +308,8 @@ function handleEditDSCT (STT, MaHV, liDo) {
           <Col md="12">
             <Card className="strpied-tabled-with-hover">
               <Card.Header>
-                <Col md="3">
-                 <Row>
+                <Col md="6">
+                <Row>
                  <div style={{ display: "flex", gap: 12 }}>
                   <p style={{display:"inline-block", width:"200px"}}>Ngày trong tuần</p>
                   <DatePicker
@@ -304,16 +318,16 @@ function handleEditDSCT (STT, MaHV, liDo) {
                     onChange={handleChange}
                   />
                   </div>
-                 </Row>
-                  
-                </Col>
-                {/* <button
+                  {/* <button
                   type="button"
                   class="btn btn-add-target  btn-table btn-left"
                   onClick={handleAddDSCT}
                 >
                   THÊM MỚI
                 </button> */}
+                 </Row>
+                </Col>
+               
               </Card.Header>
               <Card.Body className="table-full-width table-responsive px-0">
                 <Table className="table-hover table-striped">
@@ -321,24 +335,28 @@ function handleEditDSCT (STT, MaHV, liDo) {
                     <tr>
                     <th className="border-0">STT</th>
                       <th className="border-0">Mã học viên</th>
+                      <th className="border-0">Họ tên</th>
+                      <th className="border-0">Lớp</th>
                       <th className="border-0">Thời gian bắt đầu</th>
                       <th className="border-0">Thời gian kết thúc</th>
                       <th className="border-0">Lí do</th>
-                      <th className="border-0">Thao tác</th>
+                      {/* <th className="border-0">Thao tác</th> */}
                     </tr>
                   </thead>
                   <tbody>
-                  {listDSCT &&
-                      listDSCT.map((item) => {
+                  {paginate(listDSCT).map((item) => {
                         return (
                           <tr key={item.STT}>
                             <td>{item.STT}</td>
                             <td>{item.MaHV}</td>
-                            <td>{item.TG_BatDau}</td>
-                            <td>{item.TG_KetThuc}</td>
+                            <td>{item.HoTen}</td>
+                            <td>{item.TenLop}</td>
+                            <td>{getThoiGian(item.TG_BatDau)}</td>
+                            {/* <td>{item.TG_KetThuc}</td> */}
+                            <td>{getThoiGian(item.TG_KetThuc)}</td>
                             <td>{item.LIDO}</td>
                             <td>
-                              <Button
+                              {/* <Button
                                 type="button"
                                 className="btn-table btn-left"
                                 onClick={(e)=>
@@ -356,13 +374,70 @@ function handleEditDSCT (STT, MaHV, liDo) {
                                 onClick={(e) => handleDelete(item.STT)}
                               >
                                 Xóa
-                              </Button>
+                              </Button> */}
+                              {/* <div style={{ display: "flex", gap: 12, alignItems:"center", flexWrap:"nowrap" }}>
+                              <p  onClick={(e)=>
+                                   handleEditDSCT(
+                                    item.STT,
+                                    item.MaHV,
+                                    item.LIDO
+                                   )}
+                                  className="nc-icon nc-notes text-primary f-15 m-r-5"
+                               title="Chỉnh sửa"
+                               style={{ cursor: 'pointer', fontWeight: 'bold' }}></p>
+
+                                <p onClick={(e) => handleDelete(item.STT)} className="nc-icon nc-simple-remove text-danger f-15 m-r-5"
+                                title="Xóa"
+                                style={{ cursor: 'pointer', fontWeight: 'bold'  }}></p>
+                              </div> */}
                             </td>
                           </tr>
                         );
                       })}
                   </tbody>
                 </Table>
+                <div className="d-flex justify-content-center">
+                <Pagination>
+                  {currentPage > 1 && (
+                    <Pagination.Prev onClick={() => setCurrentPage(currentPage - 1)} className="prev"/>
+                  )}
+                  {currentPage > 2 && (
+                    <Pagination.Ellipsis
+                      onClick={() => setCurrentPage(Math.floor(currentPage / 2))}
+                    />
+                  )}
+                  {[...Array(Math.ceil(listDSCT.length / pageSize)).keys()].map(
+                    (number) =>
+                      Math.abs(currentPage - (number + 1)) <= 2 && (
+                        <Pagination.Item
+                          key={number}
+                          active={currentPage === number + 1}
+                          onClick={() => setCurrentPage(number + 1)}
+                        >
+                          {number + 1}
+                        </Pagination.Item>
+                      )
+                  )}
+                  {currentPage <
+                    Math.ceil(listDSCT.length / pageSize) - 1 && (
+                      <Pagination.Ellipsis
+                        onClick={() =>
+                          setCurrentPage(
+                            Math.ceil(
+                              (currentPage +
+                                Math.ceil(listDSCT.length / pageSize)) /
+                              2
+                            )
+                          )
+                        }
+                      />
+                    )}
+                  {currentPage <
+                    Math.ceil(listDSCT.length / pageSize) && (
+                      <Pagination.Next onClick={() => setCurrentPage(currentPage + 1)} className="next"/>
+                    )}
+                </Pagination>
+              </div>
               </Card.Body>
             </Card>
           </Col>
