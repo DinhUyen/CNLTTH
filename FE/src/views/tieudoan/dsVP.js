@@ -197,7 +197,7 @@ function TableListAdmin() {
                             <td>{item.TenTD}</td>
                             <td>{item.TenDD}</td>
                             <td>{item.TenLop}</td>
-                            <td>{item.TenLoi}</td>
+                            <td>{item.GhiChu}</td>
                             <td>
                               {/* <Button
                                 type="button"

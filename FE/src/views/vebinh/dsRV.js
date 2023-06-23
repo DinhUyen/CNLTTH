@@ -70,7 +70,15 @@ function TableListAdmin() {
     const data = {
       STTGiayTo: STTGiayTo
     };
-    axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {console.log(res)});
+    axiosClient.post("/VeBinh/post-bat-dau-ra-cong/", data).then((res) => {
+      if (res.status === 200) {
+        alert("Thêm thành công");
+      } else {
+        alert("Thêm thất bại");
+
+      }
+      console.log(res)});
+
     setshowModalAdd(false);
   };
   function getThoiGian(ThoiGian){
