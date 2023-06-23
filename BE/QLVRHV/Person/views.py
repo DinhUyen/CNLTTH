@@ -1379,7 +1379,7 @@ class VeBinhViewSet(viewsets.ViewSet):
                             LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
                             LEFT JOIN LOP ON LOP.MaLop = DONVI.MaLop \
                             WHERE PERSON.DonViID IN (SELECT DonViID FROM DONVI WHERE DONVI.MaLop = %s OR DONVI.MaDaiDoi= %s OR DONVI.MaTieuDoan =%s) \
-                            ORDER BY TG_Ra DESC,DONVI.MaLop,DONVI.MaDaiDoi,DONVI.MaTieuDoan'
+                            ORDER BY HV_VIPHAM.STT DESC,TG_Ra, DONVI.MaLop,DONVI.MaDaiDoi,DONVI.MaTieuDoan'
             obj = generics_cursor.getDictFromQuery(
                 query_string, [donViID,donViID,donViID], page=page, size=size)
             if obj is None:
@@ -1398,7 +1398,7 @@ class VeBinhViewSet(viewsets.ViewSet):
         size = request.query_params.get('size')
 
         try:
-            query_string = f'SELECT * FROM HV_VIPHAM \
+            query_string = f'SELECT  HV_VIPHAM.STT, HV_VIPHAM.STTRaNgoai, HOCVIEN.MaHV, Person.HoTen, LOP.TenLop, DAIDOI.TENDD, HV_VIPHAM.GhiChu FROM HV_VIPHAM \
                             LEFT JOIN LOIVIPHAM ON HV_VIPHAM.MaLoiVP = LOIVIPHAM.MaLoiVP \
                             LEFT JOIN VAORACONG ON VAORACONG.STTRaNgoai = HV_VIPHAM.STTRaNgoai \
                             LEFT JOIN HV_GIAYTORN ON VAORACONG.STTGiayTo = HV_GIAYTORN.STTGiayTo \
@@ -1410,7 +1410,7 @@ class VeBinhViewSet(viewsets.ViewSet):
                             LEFT JOIN TIEUDOAN ON TIEUDOAN.MaTD = DONVI.MaTieuDoan \
                             LEFT JOIN DAIDOI ON DAIDOI.MaDD = DONVI.MaDaiDoi \
                             LEFT JOIN LOP ON LOP.MaLop = DONVI.MaLop \
-                            ORDER BY TG_Ra DESC,DONVI.MaLop,DONVI.MaDaiDoi,DONVI.MaTieuDoan'
+                             ORDER BY HV_VIPHAM.STT DESC,TG_Ra,DONVI.MaLop,DONVI.MaDaiDoi,DONVI.MaTieuDoan'
             obj = generics_cursor.getDictFromQuery(
                 query_string, [], page=page, size=size)
             if obj is None:

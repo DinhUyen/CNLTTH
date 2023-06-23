@@ -55,16 +55,15 @@ function TableListAdmin() {
     const month = selectedDate.getMonth() + 1;
     const year = selectedDate.getFullYear();
     const dateString = `${day}-${month}-${year}`;
-    const res = await axiosClient.get(
-      "/VeBinh/get-list-loi-vi-pham-/?page=1&size=12"
-    );
+    const url = id?`/VeBinh/get-list-loi-vi-pham-theo-theo-don-vi/?page=1&size=12&donViID=${id}`:`/VeBinh/get-list-loi-vi-pham-/`
+    const res = await axiosClient.get(url);
     console.log(res)
     setlistDSVP((listDSVP) => [...res.data]);
   }
   useEffect(() => {
     
     getDSVP();
-  }, [id, selectedDate]);
+  }, [id]);
   function handleAddDSVP(){
     getLVP()
     setShowModal(true);
